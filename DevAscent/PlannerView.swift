@@ -10,7 +10,7 @@ import SwiftData
 
 struct PlannerView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \PlanTask.createdAt, order: .forward) private var tasks: [PlanTask]
+    @Query(sort: \PlanTask.createdAt, order: .reverse) private var tasks: [PlanTask]
     
     @State private var showingAddTask = false
     @State private var newTaskTitle = ""
