@@ -7,23 +7,56 @@
 
 import SwiftUI
 
-/// The "Zen Coder" Design System
-/// A cyber-minimalist color palette inspired by GitHub Dark and VS Code themes
+/// The "Zen Operator" Design System
+/// A cyber-minimalist palette for the Mission Control interface
+/// Dark mode only, OLED-friendly, high contrast neon accents
 extension Color {
-    /// Deep GitHub Dark - Primary background color for all screens
-    static let background = Color(hex: "#0D1117")
+    // MARK: - Backgrounds
     
-    /// Lighter Dark - Background for cards, lists, and elevated surfaces
-    static let cardBackground = Color(hex: "#161B22")
+    /// Almost pure black - Primary background for all screens (OLED friendly)
+    static let background = Color(hex: "#050505")
     
-    /// Git Commit Green - Primary accent for buttons, active states, and success indicators
-    static let primaryAccent = Color(hex: "#238636")
+    /// Surface color for cards and elevated elements with thin border
+    static let cardBackground = Color(hex: "#121212")
     
-    /// VS Code Blue - Headers, highlights, and interactive elements
-    static let neonText = Color(hex: "#58A6FF")
+    /// Border color for panels and cards
+    static let border = Color(hex: "#333333")
     
-    /// Muted Gray - Secondary text and disabled states
-    static let textSecondary = Color(hex: "#8B949E")
+    // MARK: - Accent Colors
+    
+    /// Cyber Green - Success states, offers, primary buttons
+    static let primaryAccent = Color(hex: "#00FF9D")
+    
+    /// Neon Cyan - Headers, active tabs, interactive elements
+    static let neonText = Color(hex: "#00F0FF")
+    
+    /// Neon Red - Warnings, alerts, rejected status
+    static let alertRed = Color(hex: "#FF0055")
+    
+    // MARK: - Text Colors
+    
+    /// Primary text - Pure white for maximum contrast
+    static let textPrimary = Color.white
+    
+    /// Secondary text - Muted gray for labels and descriptions
+    static let textSecondary = Color(hex: "#888888")
+    
+    // MARK: - Status Colors (for Intel Pipeline)
+    
+    /// Applied status - Blue
+    static let statusApplied = Color(hex: "#3B82F6")
+    
+    /// OA/Assessment status - Yellow
+    static let statusOA = Color(hex: "#EAB308")
+    
+    /// Interviewing status - Purple (used with pulsing animation)
+    static let statusInterview = Color(hex: "#A855F7")
+    
+    /// Offer status - Uses primaryAccent (Cyber Green)
+    static let statusOffer = Color(hex: "#00FF9D")
+    
+    /// Rejected status - Muted red
+    static let statusRejected = Color(hex: "#991B1B")
 }
 
 // MARK: - Hex Color Extension
@@ -52,5 +85,42 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+// MARK: - Typography Extensions
+extension Font {
+    /// Monospaced header font for terminal aesthetic
+    static func operatorHeader(_ size: CGFloat) -> Font {
+        .system(size: size, weight: .bold, design: .monospaced)
+    }
+    
+    /// Monospaced label font with tracking
+    static func operatorLabel(_ size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .monospaced)
+    }
+}
+
+// MARK: - View Modifiers
+extension View {
+    /// Standard card styling with border
+    func operatorCard() -> some View {
+        self
+            .background(Color.cardBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.border, lineWidth: 1)
+            )
+    }
+    
+    /// Glowing accent border for highlighted elements
+    func glowBorder(color: Color = .primaryAccent, radius: CGFloat = 12) -> some View {
+        self
+            .overlay(
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(color, lineWidth: 1)
+            )
+            .shadow(color: color.opacity(0.3), radius: 8, x: 0, y: 0)
     }
 }

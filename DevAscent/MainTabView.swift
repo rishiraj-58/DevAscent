@@ -2,77 +2,112 @@
 //  MainTabView.swift
 //  DevAscent
 //
-//  Created by Rishiraj on 24/11/25.
+//  DevAscent 3.0 - Elite Interview Prep Navigation
+//  Created by Rishiraj on 13/12/24.
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 0
+    @State private var hasSeeded = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            CockpitView()
-                .tabItem {
-                    Label("Cockpit", systemImage: "command.square.fill")
-                }
-                .tag(0)
+            // Command - Dashboard
+            NavigationStack {
+                CommandView()
+            }
+            .tabItem {
+                Label("Command", systemImage: "command")
+            }
+            .tag(0)
             
-            ArenaView()
-                .tabItem {
-                    Label("Arena", systemImage: "terminal.fill")
-                }
-                .tag(1)
+            // Kernel - CS Fundamentals
+            NavigationStack {
+                KernelView()
+            }
+            .tabItem {
+                Label("Kernel", systemImage: "cpu")
+            }
+            .tag(1)
             
-            LibraryView()
-                .tabItem {
-                    Label("Library", systemImage: "books.vertical.fill")
-                }
-                .tag(2)
+            // Blueprint - LLD Visualizer
+            NavigationStack {
+                BlueprintView()
+            }
+            .tabItem {
+                Label("Blueprint", systemImage: "cube.transparent")
+            }
+            .tag(2)
             
-            InterviewView()
-                .tabItem {
-                    Label("Interview", systemImage: "person.crop.rectangle.stack.fill")
-                }
-                .tag(3)
+            // Intel - Job Pipeline
+            NavigationStack {
+                IntelView()
+            }
+            .tabItem {
+                Label("Intel", systemImage: "briefcase")
+            }
+            .tag(3)
             
-            PlannerView()
-                .tabItem {
-                    Label("Planner", systemImage: "list.bullet.clipboard.fill")
-                }
-                .tag(4)
+            // Arsenal - Design Patterns & STAR Stories
+            NavigationStack {
+                ArsenalView()
+            }
+            .tabItem {
+                Label("Arsenal", systemImage: "brain.head.profile")
+            }
+            .tag(4)
         }
+        .tint(.primaryAccent)
         .onAppear {
             setupTabBarAppearance()
+            seedDataIfNeeded()
         }
     }
     
-    /// Configures the Tab Bar with custom colors matching the Zen Coder theme
     private func setupTabBarAppearance() {
         let appearance = UITabBarAppearance()
-        
-        // Background styling
+        appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(Color.cardBackground)
-        appearance.shadowColor = .clear
         
-        // Unselected tab items (muted gray)
+        // Normal state
         appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.textSecondary)
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor(Color.textSecondary)
+            .foregroundColor: UIColor(Color.textSecondary),
+            .font: UIFont.monospacedSystemFont(ofSize: 10, weight: .medium)
         ]
         
-        // Selected tab items (neon blue)
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.neonText)
+        // Selected state
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primaryAccent)
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor(Color.neonText)
+            .foregroundColor: UIColor(Color.primaryAccent),
+            .font: UIFont.monospacedSystemFont(ofSize: 10, weight: .semibold)
         ]
         
-        // Apply to both standard and scroll edge appearances
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    private func seedDataIfNeeded() {
+        guard !hasSeeded else { return }
+        hasSeeded = true
+        DataSeeder.seedIfNeeded(context: modelContext)
     }
 }
 
 #Preview {
     MainTabView()
+        .modelContainer(for: [
+            DailyTask.self,
+            JobApplication.self,
+            CSConcept.self,
+            LLDProblem.self,
+            ChatSession.self,
+            Flashcard.self,
+            DesignPattern.self,
+            StarStory.self
+        ], inMemory: true)
 }

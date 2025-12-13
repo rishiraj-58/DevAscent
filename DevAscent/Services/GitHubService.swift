@@ -27,7 +27,7 @@ class GitHubService {
         // Create request with headers
         var request = URLRequest(url: url)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("token \(apiToken)", forHTTPHeaderField: "Authorization")
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
         
         // Fetch data
