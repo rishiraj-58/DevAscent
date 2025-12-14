@@ -82,8 +82,9 @@ struct GeminiRequest: Codable {
 class GeminiService: ObservableObject {
     static let shared = GeminiService()
     
-    private let apiKey = "AIzaSyB-v5elyU_dDFKJKsAUQ0gcFuzlynnVkdc"
-    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+    // ⚠️ API key is now loaded from Secrets.swift (not committed to git)
+    private let apiKey = Secrets.geminiAPIKey
+    private let baseURL = Secrets.geminiBaseURL
     
     @Published var isLoading = false
     
