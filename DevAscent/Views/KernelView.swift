@@ -255,9 +255,9 @@ struct ConceptAccordion: View {
                     Divider()
                         .background(Color.border)
                     
-                    // Answer
-                    Text(concept.answer)
-                        .font(.system(size: 14, design: .monospaced))
+                    // Answer with markdown support
+                    Text(parseMarkdown(concept.answer))
+                        .font(.system(size: 14))
                         .foregroundColor(.textSecondary)
                         .lineSpacing(4)
                     
@@ -308,6 +308,17 @@ struct ConceptAccordion: View {
         )
         .opacity(concept.isMastered ? 0.7 : 1.0)
     }
+}
+
+// MARK: - Markdown Helper
+
+/// Parse markdown text to AttributedString for proper rendering
+private func parseMarkdown(_ text: String) -> AttributedString {
+    // Try to parse as markdown, fall back to plain text
+    if let attributed = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
+        return attributed
+    }
+    return AttributedString(text)
 }
 
 #Preview {

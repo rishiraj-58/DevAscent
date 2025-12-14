@@ -341,7 +341,7 @@ struct LogicTabView: View {
                             .foregroundColor(.neonText)
                     }
                     
-                    Text(problem.requirements)
+                    Text(parseLLDMarkdown(problem.requirements))
                         .font(.system(size: 15))
                         .foregroundColor(.white)
                         .lineSpacing(4)
@@ -361,7 +361,7 @@ struct LogicTabView: View {
                             .foregroundColor(.primaryAccent)
                     }
                     
-                    Text(problem.solutionStrategy)
+                    Text(parseLLDMarkdown(problem.solutionStrategy))
                         .font(.system(size: 15))
                         .foregroundColor(.white)
                         .lineSpacing(4)
@@ -624,6 +624,16 @@ struct ChatBubble: View {
             if !isUser { Spacer(minLength: 60) }
         }
     }
+}
+
+// MARK: - Markdown Helper
+
+/// Parse markdown text to AttributedString for proper rendering
+private func parseLLDMarkdown(_ text: String) -> AttributedString {
+    if let attributed = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
+        return attributed
+    }
+    return AttributedString(text)
 }
 
 #Preview {
