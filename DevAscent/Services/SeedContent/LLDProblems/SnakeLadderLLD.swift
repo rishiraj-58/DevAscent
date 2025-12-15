@@ -2,7 +2,7 @@
 //  SnakeLadderLLD.swift
 //  DevAscent
 //
-//  Snake & Ladder (Distributed) LLD Problem
+//  Snake and Ladder Game LLD Problem
 //
 
 import Foundation
@@ -10,437 +10,508 @@ import Foundation
 struct SnakeLadderLLD {
     static func create() -> LLDProblem {
         return LLDProblem(
-            title: "Snake & Ladder (Distributed)",
+            title: "Snake and Ladder Game",
             requirements: """
-            **Core Requirements:**
-            • Configurable Board (50, 100, 200 cells)
-            • Entities: Snake (head→tail), Ladder (start→end)
-            • Standard 6-sided Dice + Crooked Dice for testing
-            • Multiple Players (2-6) with turn-based play
-            • Winning: First to reach 100 (Exact landing vs. Bounce back)
+            **Core Domain Requirements:**
+            • **Game Management:** Create game, add players, play turns
+            • **Board Setup:** Configurable board with snakes and ladders
+            • **Turn Management:** Dice rolling, player movement, win detection
+            • **Entity Placement:** Snakes move down, ladders move up
+            • **Multiple Setup Strategies:** Random, Standard, Custom placement
+            • **Notifications:** Observer pattern for game events
 
             **Design Patterns (Mandatory):**
-            • **Singleton:** GameManager (one game per session)
-            • **Strategy:** BoardGenerationStrategy, WinningStrategy, DiceStrategy
-            • **Factory:** BoardEntityFactory (Snake, Ladder, PowerUp)
-            • **Observer:** Decouple Game state from UI (Console/Web/Mobile)
+            • **Factory Pattern:** GameFactory creates configured games
+            • **Strategy Pattern:** SetupStrategy for board configuration
+            • **Strategy Pattern:** Rules for game logic (move validation, win check)
+            • **Observer Pattern:** IObserver for game event notifications
+            • **Template Method:** BoardEntity hierarchy (Snake, Ladder)
 
-            **GS Twist (Distributed):**
-            • Event-Driven: Process MoveEvent instead of player.move()
-            • GameEvents: PlayerMoved, SnakeEncountered, LadderClimbed, GameWon
-            • Redis for Game State, Kafka for Event Queue
+            **Key Constraints:**
+            • Snake head > tail (always moves down)
+            • Ladder start < end (always moves up)
+            • No snake/ladder at position 1 or 100
+            • Multiple difficulty levels (Easy, Medium, Hard)
             """,
             solutionStrategy: """
             **Architecture:**
 
-            **A. Domain Model:**
-            • Board: Grid of Cells with configurable size
-            • Cell: Position + optional BoardEntity
-            • BoardEntity (Abstract) → Snake, Ladder, PowerUp
-            • Player: id, name, currentPosition
+            **A. Game Controller:**
+            • Game - Main controller with Board, Dice, Players queue
+            • Manages turn order using Deque<Player>
+            • Holds Rules reference for game logic
+            • Maintains list of IObservers for notifications
 
-            **B. Strategy Pattern:**
-            • BoardGenerationStrategy: RandomStrategy, FileBasedStrategy
-            • WinningStrategy: ExactLandingStrategy, OvershootAllowedStrategy
-            • DiceStrategy: StandardDice, CrookedDice, LoadedDice
+            **B. Board & Entities:**
+            • Board - Grid with entities map, setup via SetupStrategy
+            • BoardEntity (Abstract) - Base with start, end positions
+            • Snake extends BoardEntity - Moves player down
+            • Ladder extends BoardEntity - Moves player up
 
-            **C. Observer Pattern:**
-            • GameObserver interface: onPlayerMoved(), onSnakeEncountered(), onGameWon()
-            • Implementations: ConsoleUI, WebSocketHandler, MobileNotification
+            **C. Strategy Pattern (Board Setup):**
+            • SetupStrategy (Abstract) - setupBoard(Board)
+            • RandomBoardStrat - Random placement based on difficulty
+            • StandardStrat - Fixed classic placement
+            • CustomCountStrat - User-defined positions
 
-            **D. Event-Driven (Distributed):**
-            • All actions produce GameEvent objects
-            • Events published to Kafka topic
-            • Consumers update Redis state & notify clients
+            **D. Strategy Pattern (Rules):**
+            • Rules (Abstract) - isValidMove, calcNewPos, checkWin
+            • StandardRules - Classic rules implementation
+
+            **E. Factory Pattern:**
+            • GameFactory - createGame() with configuration
+
+            **F. Observer Pattern:**
+            • IObserver - update(message)
+            • ConsoleNotifier - Prints game events
             """,
             mermaidGraph: """
             classDiagram
-                class GameManager {
-                    -static GameManager instance
+                class Game {
                     -Board board
-                    -List players
-                    -Player currentPlayer
                     -Dice dice
-                    -WinningStrategy winningStrategy
+                    -Deque players
+                    -Rules rules
                     -List observers
-                    -ReentrantLock turnLock
-                    +getInstance() GameManager
-                    +startGame(config) void
-                    +playTurn() GameEvent
-                    +addObserver(GameObserver) void
-                    -notifyObservers(GameEvent) void
-                    -nextPlayer() void
+                    -bool gameOver
+                    +addPlayer(Player)
+                    +addObserver(IObserver)
+                    +notify(String)
+                    +play()
                 }
-                
                 class Board {
                     -int size
-                    -Map cells
-                    -BoardGenerationStrategy genStrategy
-                    +getCell(position) Cell
-                    +getEntityAt(position) BoardEntity
-                    +isValidBoard() boolean
+                    -List entities
+                    -Map entityMap
+                    +canAddEntity(int)
+                    +addBoardEntity(BoardEntity)
+                    +setupBoard(SetupStrategy)
+                    +display()
                 }
-                
-                class Cell {
-                    -int position
-                    -BoardEntity entity
-                    +hasEntity() boolean
-                    +getEntity() BoardEntity
-                }
-                
                 class BoardEntity {
-                    -int startPosition
-                    -int endPosition
-                    +getDestination() int
-                    +getType() EntityType
+                    #int start
+                    #int end
+                    +display()
                 }
-                
                 class Snake {
-                    -int head
-                    -int tail
-                    +getDestination() int
+                    +display()
+                    +Snake(int, int)
                 }
-                
                 class Ladder {
-                    -int bottom
-                    -int top
-                    +getDestination() int
+                    +Ladder(int, int)
                 }
-                
-                class PowerUp {
-                    -PowerUpType type
-                    -int value
-                    +apply(Player) void
-                }
-                
-                class Player {
-                    -String id
-                    -String name
-                    -int position
-                    -PlayerStatus status
-                    +move(steps) void
-                    +getPosition() int
-                }
-                
                 class Dice {
-                    +roll() int
-                    +getMaxValue() int
+                    -int faces
+                    +roll()
                 }
-                
-                class StandardDice {
-                    +roll() int
+                class Player {
+                    -int id
+                    -String name
+                    -int pos
+                    -int score
                 }
-                
-                class CrookedDice {
-                    -List allowedValues
-                    +roll() int
+                class Difficulty {
+                    EASY
+                    MEDIUM
+                    HARD
                 }
-                
-                class BoardGenerationStrategy {
-                    +generate(size) Map
-                    +validate(Map) boolean
+                class GameFactory {
+                    +createGame()
                 }
-                
-                class RandomBoardStrategy {
-                    -int snakeCount
-                    -int ladderCount
-                    +generate(size) Map
+                class IObserver {
+                    +update(String)
                 }
-                
-                class FileBoardStrategy {
-                    -String filePath
-                    +generate(size) Map
+                class ConsoleNotifier {
+                    +update(String)
                 }
-                
-                class WinningStrategy {
-                    +isWinningMove(position, steps, boardSize) boolean
-                    +getFinalPosition(position, steps, boardSize) int
+                class SetupStrategy {
+                    +setupBoard(Board)
                 }
-                
-                class ExactLandingStrategy {
-                    +isWinningMove(position, steps, boardSize) boolean
+                class RandomBoardStrat {
+                    -Difficulty difficulty
+                    +setupBoard(Board)
                 }
-                
-                class BounceBackStrategy {
-                    +getFinalPosition(position, steps, boardSize) int
+                class StandardStrat {
+                    +setupBoard(Board)
                 }
-                
-                class GameObserver {
-                    +onEvent(GameEvent) void
+                class CustomCountStrat {
+                    -int snakes
+                    -int ladders
+                    -bool randomPos
+                    -List snakePos
+                    -List ladderPos
+                    +addSnakePos(int, int)
+                    +addLadderPos(int, int)
+                    +setupBoard(Board)
                 }
-                
-                class ConsoleUI {
-                    +onEvent(GameEvent) void
+                class Rules {
+                    +isValidMove(int, int, int)
+                    +calcNewPos(int, int, Board)
+                    +checkWin(int, int)
                 }
-                
-                class WebSocketHandler {
-                    -Session session
-                    +onEvent(GameEvent) void
+                class StandardRules {
+                    +isValidMove(int, int, int)
+                    +calcNewPos(int, int, Board)
+                    +checkWin(int, int)
                 }
-                
-                class GameEvent {
-                    -EventType type
-                    -String playerId
-                    -int fromPosition
-                    -int toPosition
-                    -long timestamp
-                }
-                
-                class BoardEntityFactory {
-                    +create(EntityType, start, end) BoardEntity
-                }
-                
-                GameManager *-- Board
-                GameManager *-- Player
-                GameManager o-- Dice
-                GameManager o-- WinningStrategy
-                GameManager o-- GameObserver
-                Board *-- Cell
-                Board o-- BoardGenerationStrategy
-                Cell o-- BoardEntity
+                Game --> Board
+                Game --> Dice
+                Game --> Player
+                Game --> Rules
+                Game --> IObserver
+                GameFactory --> Game
+                Board --> BoardEntity
+                Board --> SetupStrategy
                 BoardEntity <|-- Snake
                 BoardEntity <|-- Ladder
-                BoardEntity <|-- PowerUp
-                Dice <|-- StandardDice
-                Dice <|-- CrookedDice
-                BoardGenerationStrategy <|-- RandomBoardStrategy
-                BoardGenerationStrategy <|-- FileBoardStrategy
-                WinningStrategy <|-- ExactLandingStrategy
-                WinningStrategy <|-- BounceBackStrategy
-                GameObserver <|-- ConsoleUI
-                GameObserver <|-- WebSocketHandler
-                BoardEntityFactory ..> BoardEntity
-                GameManager ..> GameEvent
+                IObserver <|.. ConsoleNotifier
+                SetupStrategy <|-- RandomBoardStrat
+                SetupStrategy <|-- StandardStrat
+                SetupStrategy <|-- CustomCountStrat
+                RandomBoardStrat --> Difficulty
+                Rules <|-- StandardRules
             """,
             codeSnippet: """
             // ═══════════════════════════════════════════════════════════════
-            // FILE: domain/BoardEntity.java (Abstract + Factory)
+            // FILE: domain/BoardEntity.java (Abstract Base)
             // ═══════════════════════════════════════════════════════════════
             public abstract class BoardEntity {
-                protected final int startPosition;
-                protected final int endPosition;
+                protected final int start;
+                protected final int end;
                 
-                public abstract int getDestination();
-                public abstract EntityType getType();
+                protected BoardEntity(int start, int end) {
+                    this.start = start;
+                    this.end = end;
+                }
+                
+                public int getStart() { return start; }
+                public int getEnd() { return end; }
+                public abstract void display();
             }
 
             public class Snake extends BoardEntity {
                 public Snake(int head, int tail) {
                     super(head, tail);
-                    if (tail >= head) throw new InvalidEntityException("Snake must go DOWN");
+                    if (head <= tail) {
+                        throw new IllegalArgumentException("Snake head must be > tail");
+                    }
                 }
                 
                 @Override
-                public int getDestination() { return endPosition; } // tail
-                
-                @Override
-                public EntityType getType() { return EntityType.SNAKE; }
+                public void display() {
+                    System.out.println("🐍 Snake: " + start + " → " + end);
+                }
             }
 
             public class Ladder extends BoardEntity {
                 public Ladder(int bottom, int top) {
                     super(bottom, top);
-                    if (top <= bottom) throw new InvalidEntityException("Ladder must go UP");
+                    if (bottom >= top) {
+                        throw new IllegalArgumentException("Ladder bottom must be < top");
+                    }
                 }
                 
                 @Override
-                public int getDestination() { return endPosition; } // top
-                
-                @Override
-                public EntityType getType() { return EntityType.LADDER; }
-            }
-
-            // Factory Pattern
-            public class BoardEntityFactory {
-                public static BoardEntity create(EntityType type, int start, int end) {
-                    return switch (type) {
-                        case SNAKE -> new Snake(start, end);
-                        case LADDER -> new Ladder(start, end);
-                        case POWERUP -> new PowerUp(start, PowerUpType.EXTRA_ROLL);
-                    };
+                public void display() {
+                    System.out.println("🪜 Ladder: " + start + " → " + end);
                 }
             }
 
             // ═══════════════════════════════════════════════════════════════
-            // FILE: strategy/DiceStrategy.java
+            // FILE: strategy/SetupStrategy.java
             // ═══════════════════════════════════════════════════════════════
-            public interface Dice {
-                int roll();
-                int getMaxValue();
+            public abstract class SetupStrategy {
+                public abstract void setupBoard(Board board);
             }
 
-            public class StandardDice implements Dice {
+            public class RandomBoardStrat extends SetupStrategy {
+                private final Difficulty difficulty;
                 private final Random random = new Random();
                 
-                @Override
-                public int roll() { return random.nextInt(6) + 1; }
-                
-                @Override
-                public int getMaxValue() { return 6; }
-            }
-
-            public class CrookedDice implements Dice {
-                private final List<Integer> allowedValues;
-                private final Random random = new Random();
-                
-                public CrookedDice(List<Integer> values) {
-                    this.allowedValues = values; // e.g., [2, 4, 6] only even
+                public RandomBoardStrat(Difficulty difficulty) {
+                    this.difficulty = difficulty;
                 }
                 
                 @Override
-                public int roll() {
-                    return allowedValues.get(random.nextInt(allowedValues.size()));
-                }
-                
-                @Override
-                public int getMaxValue() { return Collections.max(allowedValues); }
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            // FILE: strategy/WinningStrategy.java
-            // ═══════════════════════════════════════════════════════════════
-            public interface WinningStrategy {
-                boolean isWinningMove(int currentPos, int diceRoll, int boardSize);
-                int getFinalPosition(int currentPos, int diceRoll, int boardSize);
-            }
-
-            public class ExactLandingStrategy implements WinningStrategy {
-                @Override
-                public boolean isWinningMove(int pos, int dice, int size) {
-                    return pos + dice == size;
-                }
-                
-                @Override
-                public int getFinalPosition(int pos, int dice, int size) {
-                    int newPos = pos + dice;
-                    return newPos <= size ? newPos : pos; // Stay if overshoot
+                public void setupBoard(Board board) {
+                    int snakeCount = difficulty.getSnakeCount();
+                    int ladderCount = difficulty.getLadderCount();
+                    
+                    // Add random snakes
+                    for (int i = 0; i < snakeCount; i++) {
+                        int head = random.nextInt(90) + 10;  // 10-99
+                        int tail = random.nextInt(head - 2) + 2;  // 2 to head-1
+                        if (board.canAddEntity(head)) {
+                            board.addBoardEntity(new Snake(head, tail));
+                        }
+                    }
+                    
+                    // Add random ladders
+                    for (int i = 0; i < ladderCount; i++) {
+                        int bottom = random.nextInt(80) + 2;  // 2-81
+                        int top = bottom + random.nextInt(99 - bottom) + 1;
+                        if (board.canAddEntity(bottom)) {
+                            board.addBoardEntity(new Ladder(bottom, top));
+                        }
+                    }
                 }
             }
 
-            // ═══════════════════════════════════════════════════════════════
-            // FILE: service/GameManager.java (Singleton + Facade)
-            // ═══════════════════════════════════════════════════════════════
-            public class GameManager {
-                private static volatile GameManager instance;
-                private static final Object lock = new Object();
+            public class StandardStrat extends SetupStrategy {
+                @Override
+                public void setupBoard(Board board) {
+                    // Classic snake positions
+                    board.addBoardEntity(new Snake(99, 54));
+                    board.addBoardEntity(new Snake(70, 55));
+                    board.addBoardEntity(new Snake(52, 42));
+                    board.addBoardEntity(new Snake(25, 2));
+                    
+                    // Classic ladder positions
+                    board.addBoardEntity(new Ladder(6, 25));
+                    board.addBoardEntity(new Ladder(11, 40));
+                    board.addBoardEntity(new Ladder(60, 85));
+                    board.addBoardEntity(new Ladder(46, 90));
+                }
+            }
+
+            public class CustomCountStrat extends SetupStrategy {
+                private final List<Pair<Integer, Integer>> snakePos = new ArrayList<>();
+                private final List<Pair<Integer, Integer>> ladderPos = new ArrayList<>();
                 
-                private final String gameId;
+                public void addSnakePos(int start, int end) {
+                    snakePos.add(new Pair<>(start, end));
+                }
+                
+                public void addLadderPos(int start, int end) {
+                    ladderPos.add(new Pair<>(start, end));
+                }
+                
+                @Override
+                public void setupBoard(Board board) {
+                    snakePos.forEach(p -> board.addBoardEntity(new Snake(p.first, p.second)));
+                    ladderPos.forEach(p -> board.addBoardEntity(new Ladder(p.first, p.second)));
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // FILE: rules/Rules.java (Strategy for Game Logic)
+            // ═══════════════════════════════════════════════════════════════
+            public abstract class Rules {
+                public abstract boolean isValidMove(int pos, int diceValue, int boardSize);
+                public abstract int calcNewPos(int pos, int diceValue, Board board);
+                public abstract boolean checkWin(int pos, int boardSize);
+            }
+
+            public class StandardRules extends Rules {
+                @Override
+                public boolean isValidMove(int pos, int diceValue, int boardSize) {
+                    return pos + diceValue <= boardSize;
+                }
+                
+                @Override
+                public int calcNewPos(int pos, int diceValue, Board board) {
+                    int newPos = pos + diceValue;
+                    
+                    // Check for snake or ladder at new position
+                    BoardEntity entity = board.getEntityAt(newPos);
+                    if (entity != null) {
+                        entity.display();
+                        return entity.getEnd();
+                    }
+                    return newPos;
+                }
+                
+                @Override
+                public boolean checkWin(int pos, int boardSize) {
+                    return pos == boardSize;
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // FILE: observer/IObserver.java
+            // ═══════════════════════════════════════════════════════════════
+            public interface IObserver {
+                void update(String message);
+            }
+
+            public class ConsoleNotifier implements IObserver {
+                @Override
+                public void update(String message) {
+                    System.out.println("📢 " + message);
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // FILE: Game.java (Main Controller)
+            // ═══════════════════════════════════════════════════════════════
+            public class Game {
                 private final Board board;
-                private final List<Player> players;
                 private final Dice dice;
-                private final WinningStrategy winningStrategy;
-                private final List<GameObserver> observers = new CopyOnWriteArrayList<>();
-                private final ReentrantLock turnLock = new ReentrantLock();
+                private final Deque<Player> players = new ArrayDeque<>();
+                private final Rules rules;
+                private final List<IObserver> observers = new ArrayList<>();
+                private boolean gameOver = false;
                 
-                private int currentPlayerIndex = 0;
-                private GameStatus status = GameStatus.WAITING;
-                
-                public static GameManager getInstance(GameConfig config) {
-                    if (instance == null) {
-                        synchronized (lock) {
-                            if (instance == null) {
-                                instance = new GameManager(config);
-                            }
-                        }
-                    }
-                    return instance;
+                public Game(Board board, Dice dice, Rules rules) {
+                    this.board = board;
+                    this.dice = dice;
+                    this.rules = rules;
                 }
                 
-                public GameEvent playTurn() {
-                    turnLock.lock();
-                    try {
-                        Player currentPlayer = players.get(currentPlayerIndex);
-                        int fromPos = currentPlayer.getPosition();
+                public void addPlayer(Player player) {
+                    players.add(player);
+                    notify(player.getName() + " joined the game!");
+                }
+                
+                public void addObserver(IObserver observer) {
+                    observers.add(observer);
+                }
+                
+                private void notify(String message) {
+                    observers.forEach(obs -> obs.update(message));
+                }
+                
+                public void play() {
+                    notify("Game started!");
+                    
+                    while (!gameOver) {
+                        Player current = players.poll();  // Get next player
                         
-                        // 1. Roll dice
-                        int diceRoll = dice.roll();
+                        int diceValue = dice.roll();
+                        notify(current.getName() + " rolled " + diceValue);
                         
-                        // 2. Calculate new position
-                        int toPos = winningStrategy.getFinalPosition(
-                            fromPos, diceRoll, board.getSize());
+                        int currentPos = current.getPos();
                         
-                        // 3. Check for snake/ladder
-                        BoardEntity entity = board.getEntityAt(toPos);
-                        EventType eventType = EventType.PLAYER_MOVED;
-                        
-                        if (entity != null) {
-                            toPos = entity.getDestination();
-                            eventType = entity instanceof Snake ? 
-                                EventType.SNAKE_ENCOUNTERED : EventType.LADDER_CLIMBED;
+                        if (rules.isValidMove(currentPos, diceValue, board.getSize())) {
+                            int newPos = rules.calcNewPos(currentPos, diceValue, board);
+                            current.setPos(newPos);
+                            notify(current.getName() + " moved to " + newPos);
+                            
+                            if (rules.checkWin(newPos, board.getSize())) {
+                                notify("🎉 " + current.getName() + " WINS!");
+                                gameOver = true;
+                                return;
+                            }
+                        } else {
+                            notify(current.getName() + " cannot move, stays at " + currentPos);
                         }
                         
-                        // 4. Update player position
-                        currentPlayer.setPosition(toPos);
-                        
-                        // 5. Create and publish event
-                        GameEvent event = GameEvent.builder()
-                            .gameId(gameId)
-                            .type(eventType)
-                            .playerId(currentPlayer.getId())
-                            .diceRoll(diceRoll)
-                            .fromPosition(fromPos)
-                            .toPosition(toPos)
-                            .timestamp(System.currentTimeMillis())
-                            .idempotencyKey(gameId + "-" + System.nanoTime())
-                            .build();
-                        
-                        notifyObservers(event);
-                        
-                        if (status != GameStatus.COMPLETED) {
-                            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-                        }
-                        
-                        return event;
-                    } finally {
-                        turnLock.unlock();
+                        players.add(current);  // Add back to queue
                     }
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // FILE: factory/GameFactory.java
+            // ═══════════════════════════════════════════════════════════════
+            public class GameFactory {
+                public static Game createGame(SetupStrategy strategy, int numPlayers) {
+                    Board board = new Board(100);
+                    strategy.setupBoard(board);
+                    
+                    Dice dice = new Dice(6);
+                    Rules rules = new StandardRules();
+                    
+                    Game game = new Game(board, dice, rules);
+                    game.addObserver(new ConsoleNotifier());
+                    
+                    for (int i = 1; i <= numPlayers; i++) {
+                        game.addPlayer(new Player(i, "Player " + i));
+                    }
+                    
+                    return game;
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // FILE: SnakeLadderDemo.java (Main)
+            // ═══════════════════════════════════════════════════════════════
+            public class SnakeLadderDemo {
+                public static void main(String[] args) {
+                    // Create game with random setup (Medium difficulty)
+                    Game game1 = GameFactory.createGame(
+                        new RandomBoardStrat(Difficulty.MEDIUM), 
+                        2
+                    );
+                    game1.play();
+                    
+                    // Or with standard classic setup
+                    Game game2 = GameFactory.createGame(
+                        new StandardStrat(),
+                        4
+                    );
+                    game2.play();
+                    
+                    // Or with custom positions
+                    CustomCountStrat custom = new CustomCountStrat();
+                    custom.addSnakePos(50, 10);
+                    custom.addSnakePos(75, 25);
+                    custom.addLadderPos(5, 45);
+                    custom.addLadderPos(30, 95);
+                    
+                    Game game3 = GameFactory.createGame(custom, 3);
+                    game3.play();
                 }
             }
             """,
             gsSpecificTwist: """
-            **Distributed Event Queue Architecture (GS Twist)**
+            **Goldman Sachs Twist: Multiplayer with Special Dice Rules**
 
-            **Problem:** Millions of concurrent games across distributed servers.
+            **Requirement:** Add special rules:
+            1. Roll 6 → Extra turn
+            2. Three consecutive 6s → Go back to start
+            3. Power-ups at certain positions
 
-            **Solution: Event-Sourced Architecture with Kafka + Redis**
+            **Solution: Decorator for Rules + Command Pattern for Turns**
 
+            ```java
+            public class ExtendedRules extends StandardRules {
+                private final Map<Player, Integer> consecutiveSixes = new HashMap<>();
+                
+                @Override
+                public TurnResult processTurn(Player player, int diceValue) {
+                    if (diceValue == 6) {
+                        int count = consecutiveSixes.merge(player, 1, Integer::sum);
+                        
+                        if (count >= 3) {
+                            // Three 6s - reset to start
+                            consecutiveSixes.put(player, 0);
+                            player.setPos(1);
+                            return new TurnResult(false, "Three 6s! Back to start!");
+                        }
+                        
+                        // Bonus turn
+                        return new TurnResult(true, "Rolled 6! Extra turn!");
+                    } else {
+                        consecutiveSixes.put(player, 0);
+                        return super.processTurn(player, diceValue);
+                    }
+                }
+            }
+
+            // Power-up entities
+            public class PowerUp extends BoardEntity {
+                private final PowerUpType type;  // DOUBLE_ROLL, TELEPORT, SHIELD
+                
+                @Override
+                public int getEnd() {
+                    return switch(type) {
+                        case TELEPORT -> new Random().nextInt(90) + 10;
+                        case DOUBLE_ROLL -> start;  // Stay, but next roll doubled
+                        default -> start;
+                    };
+                }
+            }
             ```
-            ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-            │ Mobile App  │────▶│ API Gateway │────▶│ Game Service│
-            └─────────────┘     └─────────────┘     └──────┬──────┘
-                                                           │
-                                ┌──────────────────────────┼──────────────────────────┐
-                                ▼                          ▼                          ▼
-                          ┌─────────┐               ┌─────────────┐           ┌─────────────┐
-                          │  Kafka  │◀──────────────│ Redis State │           │ Event Store │
-                          └────┬────┘               └─────────────┘           └─────────────┘
-                               │
-                ┌──────────────┼──────────────┐
-                ▼              ▼              ▼
-            ┌─────────┐  ┌───────────┐  ┌────────────┐
-            │Consumers│  │Leaderboard│  │Notification│
-            └─────────┘  └───────────┘  │  Service   │
-                                        └────────────┘
-            ```
 
-            **Key Components:**
+            **Why Strategy for SetupStrategy?**
+            • Easy to add new board configurations
+            • RandomBoardStrat for replayability
+            • CustomCountStrat for custom game modes
 
-            1. **Kafka Topics:**
-               - `game.moves` - All move events (partitioned by gameId)
-               - `game.state` - State change events
-               - `game.completed` - Finished games
-
-            2. **Redis Storage:**
-               - `game:{gameId}:state` - Current game state (JSON)
-               - `game:{gameId}:players` - Player positions (Hash)
-
-            3. **Idempotency:**
-               - Each event has `idempotencyKey`
-               - Redis `SETNX` for exactly-once processing
-
-            4. **Edge Case - Simultaneous Rolls:**
-               - Kafka partition by gameId ensures ordering
-               - Single consumer per partition = sequential processing
+            **Why Deque for Players?**
+            • O(1) poll and add for turn rotation
+            • Natural queue behavior for player order
             """
         )
     }

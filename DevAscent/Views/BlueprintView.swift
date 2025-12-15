@@ -133,13 +133,6 @@ struct ProblemCard: View {
                         .font(.operatorHeader(18))
                         .foregroundColor(.white)
                     
-                    if !problem.gsSpecificTwist.isEmpty {
-                        Text(problem.gsSpecificTwist)
-                            .font(.system(size: 13))
-                            .foregroundColor(.textSecondary)
-                            .lineLimit(2)
-                    }
-                    
                     // Feature badges
                     HStack(spacing: 8) {
                         if !problem.mermaidGraph.isEmpty {
