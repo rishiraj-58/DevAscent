@@ -2,7 +2,7 @@
 //  JavaConcepts.swift
 //  DevAscent
 //
-//  Java CS Concepts
+//  Java CS Concepts - Comprehensive Interview Questions
 //
 
 import Foundation
@@ -10,455 +10,938 @@ import Foundation
 struct JavaConcepts {
     static func all() -> [CSConcept] {
         return [
+            // MARK: - Java Fundamentals
             CSConcept(
                 category: .java,
-                question: "HashMap Internals (Java 8+)",
+                question: "What is Java?",
+                answer: """
+                Platform-independent high-level programming language.
+
+                **Key Features:**
+                - Object-oriented (OOP)
+                - Platform independent (bytecode runs on any JVM)
+                - High performance
+                - Multi-threaded
+                - Secure and robust
+                """,
+                tags: ["fundamentals", "overview"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is JDK, JRE, and JVM?",
+                answer: """
+                **JDK (Java Development Kit):**
+                - Compile, document, package programs
+                - Contains JRE + development tools
+
+                **JRE (Java Runtime Environment):**
+                - Execute Java bytecode
+                - Physical JVM implementation
+
+                **JVM (Java Virtual Machine):**
+                - Abstract machine for bytecode execution
+                - Platform-specific implementation
+                """,
+                tags: ["JDK", "JRE", "JVM"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is public static void main(String[] args)?",
+                answer: """
+                Entry point for Java application.
+
+                **public:** Accessible by any class
+                **static:** Called without creating object
+                **void:** No return value
+                **main:** Method name JVM looks for
+                **String[] args:** Command-line arguments
+
+                JVM calls main() before any objects created.
+                """,
+                tags: ["main", "fundamentals"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Heap vs Stack Memory?",
+                answer: """
+                **Stack:**
+                - Per thread
+                - Stores local variables, method calls
+                - LIFO order
+                - Fast access
+                - Auto freed when method ends
+
+                **Heap:**
+                - Shared by all threads
+                - Stores objects
+                - Managed by GC
+                - Slower access
+                - Needs garbage collection
+                """,
+                tags: ["memory", "heap", "stack"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is JIT Compiler?",
+                answer: """
+                Just-In-Time compiler improves performance.
+
+                **How it works:**
+                - Runs AFTER program starts
+                - Compiles bytecode to native code
+                - Caches frequently used code
+
+                **vs Standard Compiler:**
+                - JIT has runtime information
+                - Can optimize hot paths
+                - Better inlining decisions
+                """,
+                tags: ["JIT", "compiler", "performance"]
+            ),
+            
+            // MARK: - OOP Concepts
+            CSConcept(
+                category: .java,
+                question: "What are OOP Concepts?",
+                answer: """
+                **4 Pillars of OOP:**
+
+                1. **Inheritance:** Reuse code from parent class
+                2. **Encapsulation:** Bundle data + methods, hide internals
+                3. **Polymorphism:** One interface, many implementations
+                4. **Abstraction:** Hide complexity, show essentials
+
+                **Additional:** Interface, Composition
+                """,
+                tags: ["OOP", "fundamentals"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is Encapsulation?",
+                answer: """
+                Bundling data and methods in a single unit (class).
+
+                **Purpose:**
+                - Data hiding (private fields)
+                - Controlled access (getters/setters)
+                - Modular development
+
+                **Implementation:**
+                - Private variables
+                - Public getter/setter methods
+                """,
+                tags: ["encapsulation", "OOP"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is Polymorphism?",
+                answer: """
+                One interface, many implementations.
+
+                **Types:**
+                1. **Compile-time (Overloading):**
+                   - Same method name, different parameters
+                   - Resolved at compile time
+
+                2. **Runtime (Overriding):**
+                   - Subclass redefines parent method
+                   - Resolved at runtime
+                   - Requires inheritance
+                """,
+                tags: ["polymorphism", "OOP"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is Inheritance?",
+                answer: """
+                Child class inherits properties from parent class.
+
+                **Types:**
+                - Single: One parent
+                - Multilevel: Chain of inheritance
+                - Hierarchical: Multiple children, one parent
+                - Hybrid: Combination
+
+                **Note:** Java doesn't support multiple inheritance (use interfaces)
+                """,
+                tags: ["inheritance", "OOP"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is Abstraction?",
+                answer: """
+                Hiding implementation, showing only functionality.
+
+                **Achieved via:**
+                - Abstract classes (0-100% abstraction)
+                - Interfaces (100% abstraction)
+
+                **Abstract Class:**
+                - Can have abstract + concrete methods
+                - Can have constructors, fields
+
+                **Interface:**
+                - All methods abstract (before Java 8)
+                - Default/static methods (Java 8+)
+                """,
+                tags: ["abstraction", "OOP"]
+            ),
+            
+            // MARK: - Classes & Objects
+            CSConcept(
+                category: .java,
+                question: "What is a Class and Object?",
+                answer: """
+                **Class:**
+                - Blueprint/template for objects
+                - Contains variables (state) and methods (behavior)
+                - Defined once, instantiated many times
+
+                **Object:**
+                - Instance of a class
+                - Has state and behavior
+                - Created using `new` keyword
+                """,
+                tags: ["class", "object"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is an Interface?",
+                answer: """
+                Blueprint of a class with abstract methods.
+
+                **Properties:**
+                - All methods public & abstract (before Java 8)
+                - Variables are public static final
+                - No constructors
+                - Supports multiple inheritance
+
+                **Java 8+:**
+                - Default methods (with implementation)
+                - Static methods
+                """,
+                tags: ["interface", "abstraction"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is an Inner Class?",
+                answer: """
+                Class nested within another class.
+
+                **Types:**
+                1. **Member Inner Class:** Regular inner class
+                2. **Static Nested Class:** Static, no outer reference
+                3. **Local Inner Class:** Inside method
+                4. **Anonymous Inner Class:** No name, inline
+
+                **Access:** Can access all outer class members (including private)
+                """,
+                tags: ["inner class", "nested"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is a Singleton Class?",
+                answer: """
+                Class with only ONE instance throughout application.
+
+                **Implementation:**
+                ```java
+                public class Singleton {
+                    private static Singleton instance;
+                    private Singleton() {}
+                    public static Singleton getInstance() {
+                        if (instance == null) {
+                            instance = new Singleton();
+                        }
+                        return instance;
+                    }
+                }
+                ```
+
+                **Thread-safe:** Use synchronized or enum
+                """,
+                tags: ["singleton", "design pattern"]
+            ),
+            
+            // MARK: - Constructors
+            CSConcept(
+                category: .java,
+                question: "What is a Constructor?",
+                answer: """
+                Special block to initialize an object.
+
+                **Properties:**
+                - Same name as class
+                - No return type (not even void)
+                - Called automatically when object created
+                - Can be public, private, or protected
+
+                **Default Constructor:**
+                - Provided by compiler if none defined
+                - No parameters
+                """,
+                tags: ["constructor", "initialization"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Types of Constructors?",
+                answer: """
+                **1. Default Constructor:**
+                - No parameters
+                - Initializes with default values
+
+                **2. Parameterized Constructor:**
+                - Takes arguments
+                - Initializes with provided values
+
+                **Constructor Overloading:**
+                - Multiple constructors with different parameters
+                - Same name, different signatures
+                """,
+                tags: ["constructor", "overloading"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Constructor vs Method?",
+                answer: """
+                | Constructor | Method |
+                |-------------|--------|
+                | Initialize object | Define behavior |
+                | No return type | Has return type |
+                | Same name as class | Any name |
+                | Invoked implicitly | Invoked explicitly |
+                | Compiler provides default | No default |
+                """,
+                tags: ["constructor", "method", "comparison"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is this() and super()?",
+                answer: """
+                **this():**
+                - Calls current class constructor
+                - Must be first line
+                - Chain constructors within same class
+
+                **super():**
+                - Calls parent class constructor
+                - Must be first line
+                - Access parent methods/fields
+
+                **Note:** Both must be first statement in constructor
+                """,
+                tags: ["this", "super", "constructor"]
+            ),
+            
+            // MARK: - Variables
+            CSConcept(
+                category: .java,
+                question: "Local vs Instance vs Static Variable?",
+                answer: """
+                **Local Variable:**
+                - Defined inside method
+                - Scope: Within method only
+                - No default value
+
+                **Instance Variable:**
+                - Defined in class, outside methods
+                - Scope: Entire class
+                - Default values assigned
+
+                **Static Variable:**
+                - Shared across all instances
+                - Belongs to class, not object
+                - One copy for all objects
+                """,
+                tags: ["variables", "scope"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Java Data Types?",
+                answer: """
+                **Primitive (8 types):**
+                - byte (1B), short (2B), int (4B), long (8B)
+                - float (4B), double (8B)
+                - char (2B)
+                - boolean (1 bit)
+
+                **Non-Primitive:**
+                - String, Arrays, Classes
+                - Reference types
+                - Can be null
+                """,
+                tags: ["data types", "primitive"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What are Wrapper Classes?",
+                answer: """
+                Object equivalents of primitive types.
+
+                | Primitive | Wrapper |
+                |-----------|---------|
+                | int | Integer |
+                | char | Character |
+                | boolean | Boolean |
+                | double | Double |
+
+                **Autoboxing:** Primitive → Wrapper (automatic)
+                **Unboxing:** Wrapper → Primitive (automatic)
+                """,
+                tags: ["wrapper", "autoboxing"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is final Keyword?",
+                answer: """
+                **final Variable:**
+                - Value cannot be changed (constant)
+
+                **final Method:**
+                - Cannot be overridden by subclass
+
+                **final Class:**
+                - Cannot be inherited
+
+                **Final with non-primitive:**
+                - Reference cannot change
+                - Object contents CAN change
+                """,
+                tags: ["final", "immutable"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is static Keyword?",
+                answer: """
+                Belongs to class, not to instance.
+
+                **Static Variable:**
+                - Shared by all objects
+                - Single copy
+
+                **Static Method:**
+                - Called without object: ClassName.method()
+                - Cannot access instance variables
+                - Cannot use `this` or `super`
+
+                **Static Block:**
+                - Executes when class loads
+                """,
+                tags: ["static", "class-level"]
+            ),
+            
+            // MARK: - Methods
+            CSConcept(
+                category: .java,
+                question: "Method Overloading vs Overriding?",
+                answer: """
+                **Overloading (Compile-time):**
+                - Same method name, different parameters
+                - Same class
+                - Return type can differ
+
+                **Overriding (Runtime):**
+                - Same method signature
+                - Child class redefines parent method
+                - @Override annotation
+                - Return type must match (or covariant)
+                """,
+                tags: ["overloading", "overriding"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Can you override private or static methods?",
+                answer: """
+                **Private methods:**
+                - Cannot be overridden
+                - Not accessible in subclass
+                - Can create same-name method (method hiding)
+
+                **Static methods:**
+                - Cannot be overridden
+                - Can be hidden (method hiding)
+                - Binding is compile-time, not runtime
+
+                **Method Hiding:** Create similar method in child class
+                """,
+                tags: ["override", "private", "static"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "equals() vs == ?",
+                answer: """
+                **== (Equality Operator):**
+                - Compares references
+                - For primitives: compares values
+                - For objects: compares memory addresses
+
+                **equals() Method:**
+                - Compares content/values
+                - Defined in Object class
+                - Should be overridden for custom comparison
+
+                **String comparison:** Always use equals()
+                """,
+                tags: ["equals", "comparison"]
+            ),
+            
+            // MARK: - Strings
+            CSConcept(
+                category: .java,
+                question: "String vs StringBuffer vs StringBuilder?",
+                answer: """
+                **String:**
+                - Immutable
+                - Thread-safe
+                - Stored in String Pool
+
+                **StringBuffer:**
+                - Mutable
+                - Thread-safe (synchronized)
+                - Slower
+
+                **StringBuilder:**
+                - Mutable
+                - NOT thread-safe
+                - Faster (no synchronization)
+
+                **Use:** StringBuilder for single thread, StringBuffer for multi-thread
+                """,
+                tags: ["String", "StringBuilder", "StringBuffer"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "String Pool & Interning?",
+                answer: """
+                **String Literal:**
+                ```java
+                String s1 = "abc"; // String Pool
+                String s2 = "abc"; // Same reference
+                String s3 = new String("abc"); // Heap
+                ```
+
+                **Comparison:**
+                - s1 == s2 → true (same pool reference)
+                - s1 == s3 → false (different objects)
+                - s1.equals(s3) → true (same content)
+
+                **intern():** Returns pool reference
+                """,
+                tags: ["String Pool", "intern"]
+            ),
+            
+            // MARK: - Exception Handling
+            CSConcept(
+                category: .java,
+                question: "What is Exception Handling?",
+                answer: """
+                Mechanism to handle runtime errors.
+
+                **Keywords:**
+                - try: Code that may throw exception
+                - catch: Handle specific exception
+                - finally: Always executes
+                - throw: Manually throw exception
+                - throws: Declare exception in method signature
+                """,
+                tags: ["exception", "try-catch"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Checked vs Unchecked Exceptions?",
+                answer: """
+                **Checked Exceptions:**
+                - Checked at compile time
+                - Must handle or declare
+                - Extends Exception
+                - Ex: IOException, SQLException
+
+                **Unchecked Exceptions:**
+                - Checked at runtime
+                - No mandatory handling
+                - Extends RuntimeException
+                - Ex: NullPointerException, ArrayIndexOutOfBounds
+
+                **Error:** Serious problems (OutOfMemoryError)
+                """,
+                tags: ["checked", "unchecked", "exception"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "Multiple Catch Blocks?",
+                answer: """
+                Yes, multiple catch blocks allowed.
+
+                **Rule:** Specific to general order
+
+                ```java
+                try {
+                    // code
+                } catch (ArithmeticException e) {
+                    // specific
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    // specific
+                } catch (Exception e) {
+                    // general (last)
+                }
+                ```
+                """,
+                tags: ["catch", "exception"]
+            ),
+            
+            // MARK: - Control Flow
+            CSConcept(
+                category: .java,
+                question: "Types of Loops in Java?",
+                answer: """
+                **for loop:**
+                - Known iterations
+                - `for (int i=0; i<n; i++)`
+
+                **while loop:**
+                - Condition checked before execution
+                - May not execute at all
+
+                **do-while loop:**
+                - Condition checked after execution
+                - Executes at least once
+
+                **Enhanced for (for-each):**
+                - Iterate collections: `for (int x : array)`
+                """,
+                tags: ["loops", "control flow"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "break vs continue?",
+                answer: """
+                **break:**
+                - Exits loop immediately
+                - Stops further iterations
+
+                **continue:**
+                - Skips current iteration
+                - Loop continues with next iteration
+
+                **Labeled break/continue:**
+                - Can break/continue outer loops
+                """,
+                tags: ["break", "continue", "loops"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "What is a Switch Statement?",
+                answer: """
+                Select from multiple conditions.
+
+                **Advantages:**
+                - Cleaner than multiple if-else
+                - Faster for many conditions
+                - Supports: int, char, String (Java 7+), enum
+
+                **default:** Executes when no case matches (optional)
+
+                **Java 12+:** Switch expressions with arrow syntax
+                """,
+                tags: ["switch", "control flow"]
+            ),
+            
+            // MARK: - Packages
+            CSConcept(
+                category: .java,
+                question: "What is a Package?",
+                answer: """
+                Collection of related classes and interfaces.
+
+                **Advantages:**
+                - Avoid name clashes
+                - Access control
+                - Easier maintenance
+                - Hierarchical organization
+
+                **Types:**
+                - Built-in: java.lang, java.util
+                - User-defined: com.example.app
+                """,
+                tags: ["package", "organization"]
+            ),
+            
+            // MARK: - Collections
+            CSConcept(
+                category: .java,
+                question: "HashMap Internals?",
                 answer: """
                 **Structure:**
                 - Array of buckets (default 16)
-                - Each bucket: LinkedList → TreeMap (when >8 nodes)
+                - Bucket: LinkedList → TreeMap (when >8 nodes)
 
-                **Hashing:**
-                ```
-                index = (n-1) & hash(key.hashCode())
-                ```
+                **Operations:**
+                1. hash(key.hashCode())
+                2. index = hash & (n-1)
+                3. Traverse bucket, find/insert
 
-                **Collision Handling:**
-                - Java 7: Linked List (O(n) worst case)
-                - Java 8+: Red-Black Tree (O(log n) when ≥8 nodes)
-
-                **Resize:**
-                - Load Factor: 0.75
-                - When exceeded: Double capacity, rehash all entries
-
-                **Key Methods:**
-                - `put()`: hash → bucket → traverse/insert
-                - `get()`: hash → bucket → equals() check
+                **Load Factor:** 0.75 (resize at 75%)
+                **Java 8+:** Red-Black Tree for collision
                 """,
-                tags: ["HashMap", "data structures", "hashing"]
+                tags: ["HashMap", "collections"]
             ),
             CSConcept(
                 category: .java,
-                question: "volatile vs synchronized",
+                question: "hashCode() and equals() Contract?",
+                answer: """
+                **Rules:**
+                - If a.equals(b) → hashCode must be same
+                - If hashCode differs → objects NOT equal
+                - Same hashCode doesn't mean equal (collision)
+
+                **Breaking Contract:**
+                - Override equals() only → HashMap breaks
+                - Override hashCode() only → equals objects in different buckets
+
+                **Always override BOTH together!**
+                """,
+                tags: ["hashCode", "equals", "contract"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "ArrayList vs LinkedList?",
+                answer: """
+                **ArrayList:**
+                - Dynamic array
+                - O(1) random access
+                - O(n) insert/delete (shifting)
+                - Better for read-heavy
+
+                **LinkedList:**
+                - Doubly-linked nodes
+                - O(n) random access
+                - O(1) insert/delete at ends
+                - Better for write-heavy
+                """,
+                tags: ["ArrayList", "LinkedList"]
+            ),
+            CSConcept(
+                category: .java,
+                question: "ConcurrentHashMap vs HashMap?",
+                answer: """
+                **HashMap:**
+                - NOT thread-safe
+                - Allows null key/values
+                - Faster (no sync overhead)
+
+                **ConcurrentHashMap:**
+                - Thread-safe
+                - No null keys/values
+                - Segment locking (Java 7)
+                - CAS operations (Java 8+)
+                - Read: Lock-free
+                """,
+                tags: ["ConcurrentHashMap", "thread-safe"]
+            ),
+            
+            // MARK: - Concurrency
+            CSConcept(
+                category: .java,
+                question: "volatile vs synchronized?",
                 answer: """
                 **volatile:**
-                - Visibility guarantee only
-                - Reads/writes go to main memory
-                - No atomicity for compound operations (i++)
+                - Visibility only
+                - Reads/writes to main memory
+                - No atomicity (i++ NOT atomic)
                 - No blocking
 
                 **synchronized:**
-                - Visibility + Atomicity + Mutual exclusion
-                - Acquires lock (monitor)
-                - Blocking (other threads wait)
+                - Visibility + Atomicity + Mutex
+                - Acquires lock
+                - Blocking (threads wait)
                 - Can cause deadlock
-
-                **Use volatile when:**
-                - Single writer, multiple readers
-                - Simple flag/status variable
-                - Happens-before relationship needed
-
-                **Use synchronized when:**
-                - Multiple writers
-                - Compound operations (check-then-act)
-                - Need mutual exclusion
                 """,
-                tags: ["volatile", "synchronized", "concurrency", "visibility"]
+                tags: ["volatile", "synchronized"]
             ),
             CSConcept(
                 category: .java,
-                question: "Garbage Collection - Generations",
+                question: "What is ThreadLocal?",
                 answer: """
-                **Generational Hypothesis:** Most objects die young
+                Each thread gets its own variable copy.
 
-                **Heap Structure:**
-                1. **Young Generation:**
-                   - Eden (new objects allocated here)
-                   - Survivor 0 & Survivor 1 (survivors of minor GC)
-                   - Minor GC: Fast, stop-the-world pause
+                **Use Cases:**
+                - User session context
+                - Database connections
+                - SimpleDateFormat (not thread-safe)
 
-                2. **Old Generation (Tenured):**
-                   - Objects surviving multiple minor GCs
-                   - Major GC: Slower, longer pause
+                **Danger:** Memory leak in thread pools!
 
-                3. **Metaspace (Java 8+):**
-                   - Class metadata (replaced PermGen)
-
-                **Common Collectors:**
-                - G1 (default in Java 9+)
-                - ZGC (ultra-low latency)
-                - Shenandoah (concurrent compaction)
+                **Always:** Use try-finally with remove()
                 """,
-                tags: ["GC", "garbage collection", "heap", "memory"]
+                tags: ["ThreadLocal", "concurrency"]
             ),
             CSConcept(
                 category: .java,
-                question: "ReentrantLock vs synchronized",
+                question: "Thread Pool Types?",
                 answer: """
-                **ReentrantLock advantages:**
-                - `tryLock()` - non-blocking attempt
-                - `lockInterruptibly()` - can be interrupted
-                - Fairness policy (FIFO ordering)
-                - Multiple Condition objects
-                - `tryLock(timeout)` - timed waiting
+                **FixedThreadPool(n):**
+                - Fixed n threads
+                - Unbounded queue
 
-                **synchronized advantages:**
-                - Simpler syntax
-                - Automatic release (even on exception)
-                - JVM optimizations (biased locking, lock elision)
+                **CachedThreadPool:**
+                - Creates threads as needed
+                - Reuses idle threads
 
-                **When to use ReentrantLock:**
-                - Need tryLock or timed lock
-                - Need fairness
-                - Need multiple conditions
-                - Need interruptible locking
+                **SingleThreadExecutor:**
+                - One thread, sequential
+
+                **ScheduledThreadPool:**
+                - Delayed/periodic tasks
+
+                **Always shutdown() to prevent leaks!**
                 """,
-                tags: ["ReentrantLock", "synchronized", "concurrency", "locks"]
+                tags: ["ThreadPool", "Executor"]
+            ),
+            
+            // MARK: - Garbage Collection
+            CSConcept(
+                category: .java,
+                question: "Garbage Collection Generations?",
+                answer: """
+                **Young Generation:**
+                - Eden: New objects
+                - Survivor 0 & 1: Minor GC survivors
+                - Minor GC: Fast, short pause
+
+                **Old Generation:**
+                - Long-lived objects
+                - Major GC: Slower, longer pause
+
+                **Metaspace (Java 8+):**
+                - Class metadata
+                - Replaced PermGen
+                """,
+                tags: ["GC", "garbage collection"]
+            ),
+            
+            // MARK: - Java 8+ Features
+            CSConcept(
+                category: .java,
+                question: "Functional Interface?",
+                answer: """
+                Interface with exactly ONE abstract method.
+
+                **Built-in:**
+                - Predicate<T>: T → boolean
+                - Function<T,R>: T → R
+                - Consumer<T>: T → void
+                - Supplier<T>: () → T
+
+                **Lambda Expressions:**
+                - `(x) -> x * 2`
+                - Implement functional interfaces concisely
+                """,
+                tags: ["functional", "lambda", "Java 8"]
             ),
             CSConcept(
                 category: .java,
-                question: "HashMap Internals - Architecture",
+                question: "Stream API?",
                 answer: """
-                Structure: Array of Node<K,V> buckets
+                **Pipeline:**
+                Source → Intermediate → Terminal
 
-                Put Operation:
-                1. Calculate hash: hash(key) = key.hashCode() ^ (h >>> 16)
-                2. Find bucket: index = hash & (n-1)
-                3. If empty → insert Node
-                4. If collision → add to linked list
-                5. If list size >= 8 → convert to Red-Black Tree (Java 8+)
-                6. If size > threshold → resize (2x capacity)
+                **Intermediate (lazy):**
+                - filter(), map(), flatMap()
+                - sorted(), distinct()
 
-                Get Operation: O(1) average, O(log n) worst (tree)
+                **Terminal (trigger):**
+                - collect(), forEach()
+                - reduce(), count()
+                - findFirst(), anyMatch()
 
-                Load Factor: 0.75 (default) - triggers resize at 75% capacity
+                **Example:**
+                `list.stream().filter(x -> x > 5).collect(toList())`
                 """,
-                tags: ["HashMap", "hashing", "collections", "data structures"]
+                tags: ["Stream", "Java 8"]
             ),
             CSConcept(
                 category: .java,
-                question: "hashCode() & equals() Contract",
+                question: "CompletableFuture?",
                 answer: """
-                Contract Rules:
-                • If a.equals(b) → a.hashCode() == b.hashCode()
-                • If hashCode differs → objects are NOT equal
-                • hashCode same does NOT mean equals (collision)
+                Async programming without blocking.
 
-                Breaking the Contract:
-                • Override equals() only → HashMap finds wrong bucket
-                • Override hashCode() only → equals objects in different buckets
+                **Creating:**
+                - supplyAsync(() -> compute())
+                - runAsync(() -> sideEffect())
 
-                Example broken behavior:
-                Set<Person> set = new HashSet<>();
-                set.add(new Person("John")); // bucket 5
-                set.contains(new Person("John")); // false! different bucket
+                **Chaining:**
+                - thenApply() - transform
+                - thenAccept() - consume
+                - thenCompose() - flatMap
 
-                Always override BOTH together!
+                **Error Handling:**
+                - exceptionally() - recover
+                - handle() - process result or error
                 """,
-                tags: ["hashCode", "equals", "collections", "contract"]
+                tags: ["CompletableFuture", "async"]
             ),
+            
+            // MARK: - Serialization
             CSConcept(
                 category: .java,
-                question: "Creating an Immutable Class",
+                question: "What is Serialization?",
                 answer: """
-                Rules for Immutability:
-                1. Declare class as final (prevent subclassing)
+                Convert object to byte stream.
+
+                **Markers:**
+                - implements Serializable
+                - serialVersionUID
+
+                **transient:**
+                - Fields NOT serialized
+                - Use for: passwords, derived fields
+
+                **Dangers:**
+                - Security (deserialization attacks)
+                - Breaks encapsulation
+                - Version issues
+                """,
+                tags: ["serialization", "transient"]
+            ),
+            
+            // MARK: - Immutability
+            CSConcept(
+                category: .java,
+                question: "Creating an Immutable Class?",
+                answer: """
+                **Rules:**
+                1. Class is final (no subclassing)
                 2. All fields private and final
                 3. No setters
                 4. Defensive copy in constructor
-                5. Defensive copy in getters (for mutable fields)
+                5. Defensive copy in getters
 
-                Example:
-                public final class ImmutablePerson {
-                    private final String name;
-                    private final List<String> hobbies;
-                    
-                    public ImmutablePerson(String name, List<String> hobbies) {
-                        this.name = name;
-                        this.hobbies = new ArrayList<>(hobbies); // defensive copy
-                    }
-                    
-                    public List<String> getHobbies() {
-                        return Collections.unmodifiableList(hobbies);
-                    }
-                }
-
-                Why String is immutable: Security, caching (String pool), thread-safety
+                **Benefits:**
+                - Thread-safe
+                - Cacheable
+                - Good hash keys
                 """,
-                tags: ["immutability", "final", "thread-safety", "design"]
+                tags: ["immutable", "design"]
             ),
+            
+            // MARK: - ClassLoader
             CSConcept(
                 category: .java,
-                question: "volatile Keyword - What It Does",
+                question: "ClassLoader Hierarchy?",
                 answer: """
-                Guarantees:
-                1. Visibility: Changes visible to all threads immediately
-                2. Happens-before: All writes before volatile write visible after volatile read
-                3. Prevents instruction reordering around volatile
-
-                Does NOT guarantee:
-                • Atomicity! count++ is NOT atomic even with volatile
-
-                Use Cases:
-                • Flag variables (boolean stop)
-                • Double-checked locking (with synchronized)
-                • Publishing immutable objects
-
-                Example:
-                volatile boolean running = true;
-                // Thread 1: running = false;
-                // Thread 2: while(running) {} // Will see false immediately
-
-                For atomicity, use AtomicInteger or synchronized
-                """,
-                tags: ["volatile", "concurrency", "visibility", "memory model"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "Executor Framework - Thread Pools",
-                answer: """
-                submit() vs execute():
-                • execute(Runnable) - void, fire-and-forget
-                • submit(Callable) - returns Future<T>, can get result
-
-                Thread Pool Types:
-                • FixedThreadPool(n): Fixed n threads, queue unbounded
-                • CachedThreadPool: Creates threads as needed, reuses idle
-                • SingleThreadExecutor: Single thread, sequential execution
-                • ScheduledThreadPool: For delayed/periodic tasks
-
-                Best Practices:
-                • Fixed for CPU-bound (n = cores)
-                • Cached for many short-lived tasks
-                • Always shutdown() to prevent memory leaks
-
-                ExecutorService executor = Executors.newFixedThreadPool(4);
-                Future<String> result = executor.submit(() -> "Done");
-                executor.shutdown();
-                """,
-                tags: ["Executor", "ThreadPool", "Future", "concurrency"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "String Pool & Interning",
-                answer: """
-                String Literal vs new String:
-                String s1 = "abc";        // String Pool (Heap special area)
-                String s2 = "abc";        // Same reference as s1
-                String s3 = new String("abc"); // New object on Heap
-
-                s1 == s2    // true (same pool reference)
-                s1 == s3    // false (different objects)
-                s1.equals(s3) // true (same content)
-
-                Interning:
-                String s4 = s3.intern(); // Returns pool reference
-                s1 == s4    // true!
-
-                Memory: Pool prevents duplicate strings
-                GC: Pool strings eligible for GC if no references
-                """,
-                tags: ["String", "Pool", "intern", "memory"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "Stream API Pipeline",
-                answer: """
-                Stream Pipeline:
-                Source → Intermediate Operations → Terminal Operation
-
-                Intermediate (lazy, return Stream):
-                • filter(Predicate) - select elements
-                • map(Function) - transform elements
-                • flatMap(Function) - flatten nested structures
-                • sorted() - sort elements
-                • distinct() - remove duplicates
-
-                Terminal (trigger execution):
-                • collect(Collector) - to List, Set, Map
-                • forEach(Consumer) - side effects
-                • reduce(BinaryOperator) - aggregate
-                • count(), findFirst(), anyMatch()
-
-                Example:
-                employees.stream()
-                    .filter(e -> e.getSalary() > 50000)
-                    .map(Employee::getName)
-                    .sorted()
-                    .collect(Collectors.toList());
-                """,
-                tags: ["Stream", "Java 8", "functional", "collections"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "ConcurrentHashMap vs HashMap vs Hashtable",
-                answer: """
-                HashMap:
-                • NOT thread-safe
-                • Allows one null key, multiple null values
-                • Best performance for single-threaded
-
-                Hashtable (legacy):
-                • Thread-safe (synchronized methods)
-                • No null keys or values
-                • Poor performance (locks entire table)
-
-                ConcurrentHashMap:
-                • Thread-safe with segment locking (Java 7)
-                • Lock striping: 16 segments by default
-                • Java 8+: CAS operations, no segments
-                • No null keys or values
-                • Best for concurrent access
-
-                Read: Lock-free in ConcurrentHashMap
-                Write: Only locks affected bucket/segment
-                """,
-                tags: ["ConcurrentHashMap", "thread-safety", "collections"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "ThreadLocal - Use Cases & Dangers",
-                answer: """
-                What it does:
-                • Each thread gets its own copy of variable
-                • No synchronization needed
-                • Accessed via ThreadLocal.get()/set()
-
-                Use Cases:
-                • User session context (Spring SecurityContextHolder)
-                • Database connections per thread
-                • SimpleDateFormat (not thread-safe)
-                • Transaction context
-
-                Dangers:
-                • Memory leaks in thread pools!
-                • Thread reuse keeps old values
-                • ALWAYS use try-finally with remove()
-
-                Example:
-                ThreadLocal<User> currentUser = new ThreadLocal<>();
-                try {
-                    currentUser.set(user);
-                    // ... use currentUser.get()
-                } finally {
-                    currentUser.remove(); // CRITICAL!
-                }
-                """,
-                tags: ["ThreadLocal", "thread-safety", "memory leak"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "CompletableFuture - Async Programming",
-                answer: """
-                Creating:
-                CompletableFuture.supplyAsync(() -> compute())
-                CompletableFuture.runAsync(() -> sideEffect())
-
-                Chaining:
-                • thenApply(fn) - transform result
-                • thenAccept(consumer) - consume result
-                • thenRun(runnable) - just run
-                • thenCompose(fn) - flatMap (returns CF)
-
-                Combining:
-                • thenCombine(other, fn) - combine two
-                • allOf(cf1, cf2, cf3) - wait for all
-                • anyOf(cf1, cf2, cf3) - first to complete
-
-                Error Handling:
-                • exceptionally(fn) - recover from error
-                • handle(bifn) - process result or error
-
-                Example:
-                CompletableFuture.supplyAsync(() -> fetchUser(id))
-                    .thenApply(user -> enrichUser(user))
-                    .thenAccept(user -> saveToCache(user))
-                    .exceptionally(ex -> { log(ex); return null; });
-                """,
-                tags: ["CompletableFuture", "async", "Future", "concurrency"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "ClassLoader - How Classes Are Loaded",
-                answer: """
-                Hierarchy (Parent-first delegation):
+                **Parent-first delegation:**
                 1. Bootstrap ClassLoader (JRE classes)
                 2. Extension ClassLoader (ext folder)
                 3. Application ClassLoader (classpath)
 
-                Loading Process:
+                **Loading Process:**
                 1. Loading: Read .class bytecode
                 2. Linking: Verify → Prepare → Resolve
                 3. Initialization: Run static blocks
 
-                Class.forName() vs ClassLoader.loadClass():
-                • forName() - loads AND initializes
-                • loadClass() - loads only, no init
-
-                Custom ClassLoader uses:
-                • Hot reloading (Tomcat)
-                • Plugin systems
-                • Encryption/decryption of classes
-                • Isolation (different versions)
+                **Class.forName():** Loads AND initializes
                 """,
-                tags: ["ClassLoader", "JVM", "bytecode", "loading"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "Functional Interface vs Regular Interface",
-                answer: """
-                Functional Interface:
-                • Exactly ONE abstract method
-                • Can have default/static methods
-                • @FunctionalInterface annotation (optional)
-                • Can be used with lambdas
-
-                Built-in Functional Interfaces:
-                • Predicate<T>: T → boolean
-                • Function<T,R>: T → R
-                • Consumer<T>: T → void
-                • Supplier<T>: () → T
-                • BiFunction<T,U,R>: (T,U) → R
-
-                Why added to interfaces (Java 8)?
-                Default methods: Backward compatibility
-                • Add methods to interface without breaking implementations
-                • Example: List.forEach() added without breaking old code
-
-                Static methods: Utility methods in interface
-                • Comparator.comparing()
-                """,
-                tags: ["functional interface", "lambda", "Java 8"]
-            ),
-            CSConcept(
-                category: .java,
-                question: "Serialization & Its Dangers",
-                answer: """
-                What: Convert object → byte stream
-
-                Markers:
-                • implements Serializable
-                • serialVersionUID (version control)
-
-                transient keyword:
-                • Fields NOT serialized
-                • Use for: passwords, derived fields, non-serializable refs
-
-                Dangers:
-                • Security: Deserialization attacks
-                • Breaks encapsulation (bypasses constructors)
-                • Versioning nightmares
-
-                Alternatives:
-                • JSON (Jackson, Gson)
-                • Protocol Buffers
-                • Externalization (manual control)
-
-                Custom Serialization:
-                private void writeObject(ObjectOutputStream)
-                private void readObject(ObjectInputStream)
-                """,
-                tags: ["Serialization", "transient", "security"]
+                tags: ["ClassLoader", "JVM"]
             )
         ]
     }

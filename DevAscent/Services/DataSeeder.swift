@@ -14,7 +14,7 @@ import SwiftData
 struct DataSeeder {
     
     // Increment this when content changes to trigger re-seed
-    private static let contentVersion = 24
+    private static let contentVersion = 29
     
     /// Check if data needs to be seeded (first launch or version change)
     static func needsSeeding(context: ModelContext) -> Bool {

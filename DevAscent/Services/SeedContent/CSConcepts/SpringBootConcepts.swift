@@ -2,7 +2,7 @@
 //  SpringBootConcepts.swift
 //  DevAscent
 //
-//  Spring Boot CS Concepts
+//  Spring Boot CS Concepts - Comprehensive Interview Questions
 //
 
 import Foundation
@@ -10,358 +10,1247 @@ import Foundation
 struct SpringBootConcepts {
     static func all() -> [CSConcept] {
         return [
+            // MARK: - Spring Boot Fundamentals
             CSConcept(
                 category: .springBoot,
-                question: "@SpringBootApplication - What It Does",
+                question: "What is Spring Boot?",
                 answer: """
-                Combines 3 annotations:
+                Framework for building production-ready Spring applications.
 
-                @Configuration
-                • Marks class as source of bean definitions
-                • Allows @Bean methods
+                **Main Features:**
+                - Auto-configuration
+                - Starter POMs (dependency bundles)
+                - Embedded servers (Tomcat, Jetty)
+                - Actuator (monitoring)
+                - Spring CLI
 
-                @EnableAutoConfiguration
-                • Spring guesses config based on classpath
-                • Reads META-INF/spring.factories
-
-                @ComponentScan
-                • Scans current package and sub-packages
-                • Finds @Component, @Service, @Repository, @Controller
-
-                Example:
-                @SpringBootApplication
-                public class MyApp {
-                    public static void main(String[] args) {
-                        SpringApplication.run(MyApp.class, args);
-                    }
-                }
+                **Benefits:**
+                - Minimal configuration
+                - Fast development
+                - Production-ready defaults
                 """,
-                tags: ["SpringBoot", "annotations", "auto-configuration"]
+                tags: ["fundamentals", "overview"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Dependency Injection - Constructor vs Field",
+                question: "What is @SpringBootApplication?",
                 answer: """
-                Field Injection (@Autowired on field):
-                @Autowired
-                private UserService userService;
-                ❌ Hard to test, hides dependencies, allows nulls
+                Combines 3 annotations:
 
-                Constructor Injection (Recommended):
+                **@Configuration:**
+                - Source of bean definitions
+                - Allows @Bean methods
+
+                **@EnableAutoConfiguration:**
+                - Auto-configures based on classpath
+                - Reads META-INF/spring.factories
+
+                **@ComponentScan:**
+                - Scans current + sub-packages
+                - Finds @Component, @Service, @Repository
+                """,
+                tags: ["annotation", "entry point"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What are Spring Boot Starters?",
+                answer: """
+                Pre-configured dependency bundles.
+
+                **Common Starters:**
+                - spring-boot-starter-web: Web apps + Tomcat
+                - spring-boot-starter-data-jpa: JPA + Hibernate
+                - spring-boot-starter-security: Spring Security
+                - spring-boot-starter-test: Testing libraries
+
+                **Benefits:**
+                - Simplify dependency management
+                - Ensure compatible versions
+                - Quick project setup
+                """,
+                tags: ["starters", "dependencies"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "application.properties vs application.yml?",
+                answer: """
+                Configuration files for Spring Boot.
+
+                **application.properties:**
+                ```
+                server.port=8081
+                spring.datasource.url=jdbc:mysql://localhost/db
+                ```
+
+                **application.yml:**
+                ```yaml
+                server:
+                  port: 8081
+                spring:
+                  datasource:
+                    url: jdbc:mysql://localhost/db
+                ```
+
+                **Default port:** 8080
+                """,
+                tags: ["configuration", "properties"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is JDK, JRE, and JVM in Spring context?",
+                answer: """
+                **JDK:** Development Kit (compile + run)
+                **JRE:** Runtime Environment (run only)
+                **JVM:** Virtual Machine (executes bytecode)
+
+                Spring Boot runs on any JVM platform.
+
+                **Embedded Servers:**
+                - Tomcat (default)
+                - Jetty
+                - Undertow
+                """,
+                tags: ["JVM", "runtime"]
+            ),
+            
+            // MARK: - Annotations
+            CSConcept(
+                category: .springBoot,
+                question: "@Component vs @Service vs @Repository?",
+                answer: """
+                **@Component:**
+                - Generic Spring-managed bean
+                - Base stereotype annotation
+
+                **@Service:**
+                - Specialized @Component
+                - For business logic layer
+                - Semantic clarity
+
+                **@Repository:**
+                - Specialized @Component
+                - For data access layer (DAO)
+                - Exception translation to DataAccessException
+                """,
+                tags: ["annotations", "stereotypes"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is @Autowired?",
+                answer: """
+                Auto-injects dependencies.
+
+                **Types:**
+                - Field injection (not recommended)
+                - Setter injection
+                - Constructor injection (recommended)
+
+                **Constructor Injection (Best):**
+                ```java
                 private final UserService userService;
                 public MyController(UserService userService) {
                     this.userService = userService;
                 }
-                ✅ Immutable, clear dependencies, easy testing
+                ```
 
-                Why Constructor is better:
-                • Fields can be final (immutability)
-                • Fails fast if dependency missing
-                • No reflection needed
-                • Easy to mock in tests
-                • Prevents circular dependencies (fails at startup)
+                **Benefits:** Immutable, testable, no nulls
                 """,
-                tags: ["DI", "Autowired", "injection", "testing"]
+                tags: ["autowired", "DI"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Bean Scopes",
+                question: "What is @Value annotation?",
                 answer: """
-                @Scope("scopeName")
+                Injects values from properties files.
 
-                Singleton (default):
-                • One instance per Spring container
-                • Shared across all requests
-                • Stateless beans only!
+                **Usage:**
+                ```java
+                @Value("${app.name}")
+                private String appName;
 
-                Prototype:
-                • New instance on each injection
-                • Use for stateful beans
-                • Spring doesn't manage full lifecycle
+                @Value("${app.timeout:30}")
+                private int timeout; // default 30
+                ```
 
-                Request (Web):
-                • One instance per HTTP request
-                • @RequestScope
-
-                Session (Web):
-                • One instance per HTTP session
-                • @SessionScope
-
-                When to use Prototype:
-                • Bean holds user-specific state
-                • Bean is not thread-safe
+                **Alternative:** @ConfigurationProperties for type-safe binding
                 """,
-                tags: ["Scope", "Singleton", "Prototype", "lifecycle"]
+                tags: ["value", "properties"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "@Transactional - How It Works",
+                question: "@RestController vs @Controller?",
                 answer: """
-                Internal Mechanism:
-                • Spring creates AOP proxy around bean
-                • Proxy intercepts method call
-                • Starts transaction → calls method → commit/rollback
+                **@Controller:**
+                - Returns view names (HTML, JSP)
+                - Needs @ResponseBody for JSON
 
-                Propagation Types:
-                • REQUIRED (default): Use existing or create new
-                • REQUIRES_NEW: Always create new (suspend existing)
-                • NESTED: Nested transaction with savepoint
-                • SUPPORTS: Use if exists, else non-transactional
+                **@RestController:**
+                - @Controller + @ResponseBody
+                - Returns JSON/XML directly
+                - Used for REST APIs
 
-                Common Pitfalls:
-                • Self-invocation bypasses proxy (no transaction!)
-                • Only works on public methods
-                • RuntimeException triggers rollback, checked doesn't
-
-                @Transactional(
-                    propagation = Propagation.REQUIRED,
-                    isolation = Isolation.READ_COMMITTED,
-                    rollbackFor = Exception.class
-                )
+                ```java
+                @RestController
+                public class UserController {
+                    @GetMapping("/users")
+                    public List<User> getUsers() {
+                        return userService.findAll();
+                    }
+                }
+                ```
                 """,
-                tags: ["Transactional", "AOP", "proxy", "propagation"]
+                tags: ["controller", "REST"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "JPA vs Hibernate",
+                question: "HTTP Method Annotations?",
                 answer: """
-                JPA (Java Persistence API):
-                • Specification/Standard (JSR 338)
-                • Defines annotations: @Entity, @Table, @Id
-                • Defines EntityManager interface
-                • No implementation!
+                **@GetMapping:** Retrieve resource
+                **@PostMapping:** Create resource
+                **@PutMapping:** Replace resource
+                **@PatchMapping:** Partial update
+                **@DeleteMapping:** Delete resource
 
-                Hibernate:
-                • JPA Implementation (most popular)
-                • Provides SessionFactory, Session
-                • Extra features: Caching, HQL, Lazy loading
-                • Spring Boot default JPA provider
-
-                Spring Data JPA:
-                • Abstraction over JPA
-                • Repository pattern out of box
-                • Query derivation from method names:
-                  findByEmailAndStatus(String email, Status status)
-
-                Hierarchy: Spring Data JPA → JPA → Hibernate → JDBC
+                **@RequestMapping:** General purpose
+                ```java
+                @RequestMapping(value="/users", method=RequestMethod.GET)
+                ```
                 """,
-                tags: ["JPA", "Hibernate", "ORM", "persistence"]
+                tags: ["HTTP", "methods", "REST"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Spring Actuator Endpoints",
+                question: "@PathVariable vs @RequestParam?",
                 answer: """
-                Production-ready features for monitoring:
+                **@PathVariable:** Extract from URL path
+                ```java
+                @GetMapping("/users/{id}")
+                public User getUser(@PathVariable Long id)
+                // URL: /users/123
+                ```
 
-                /actuator/health
-                • Application health status
-                • Database, disk space, custom checks
-
-                /actuator/metrics
-                • JVM memory, GC, threads
-                • HTTP request stats
-
-                /actuator/info
-                • Build info, git commit
-
-                /actuator/env
-                • Environment properties
-
-                /actuator/loggers
-                • View/change log levels at runtime
-
-                Security: Expose only needed endpoints
-                management:
-                  endpoints:
-                    web:
-                      exposure:
-                        include: health,info,metrics
+                **@RequestParam:** Extract from query string
+                ```java
+                @GetMapping("/users")
+                public List<User> getUsers(@RequestParam String name)
+                // URL: /users?name=John
+                ```
                 """,
-                tags: ["Actuator", "monitoring", "health", "metrics"]
+                tags: ["path", "request", "parameters"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Spring Profiles - Environment Config",
+                question: "@RequestBody vs @ResponseBody?",
                 answer: """
-                What: Different configs for Dev/Test/Prod
+                **@RequestBody:**
+                - Deserializes JSON to object
+                - Used in POST/PUT methods
 
-                Files:
-                • application.properties (default)
-                • application-dev.properties
-                • application-prod.properties
+                **@ResponseBody:**
+                - Serializes object to JSON
+                - Included in @RestController
 
-                Activating:
-                • spring.profiles.active=dev
-                • -Dspring.profiles.active=prod
-                • SPRING_PROFILES_ACTIVE=prod
+                ```java
+                @PostMapping("/users")
+                public User create(@RequestBody User user) {
+                    return userService.save(user);
+                }
+                ```
+                """,
+                tags: ["body", "JSON", "serialization"]
+            ),
+            
+            // MARK: - Dependency Injection
+            CSConcept(
+                category: .springBoot,
+                question: "What is Dependency Injection?",
+                answer: """
+                Design pattern where dependencies are provided externally.
 
-                @Profile annotation:
+                **Types in Spring:**
+                1. Constructor Injection (recommended)
+                2. Setter Injection
+                3. Field Injection (avoid)
+
+                **Benefits:**
+                - Loose coupling
+                - Easy testing
+                - Flexible configuration
+                """,
+                tags: ["DI", "IoC"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "How to define a Bean?",
+                answer: """
+                **Using @Bean:**
+                ```java
+                @Configuration
+                public class AppConfig {
+                    @Bean
+                    public DataSource dataSource() {
+                        return new HikariDataSource();
+                    }
+                }
+                ```
+
+                **Using Stereotype:**
+                ```java
+                @Component
+                public class MyService { }
+                ```
+                """,
+                tags: ["bean", "configuration"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Bean Scopes?",
+                answer: """
+                **Singleton (default):**
+                - One instance per container
+                - Shared across requests
+
+                **Prototype:**
+                - New instance on each injection
+                - For stateful beans
+
+                **Request:**
+                - One per HTTP request
+
+                **Session:**
+                - One per HTTP session
+
+                ```java
+                @Scope("prototype")
+                @Component
+                public class MyBean { }
+                ```
+                """,
+                tags: ["scope", "singleton", "prototype"]
+            ),
+            
+            // MARK: - Exception Handling
+            CSConcept(
+                category: .springBoot,
+                question: "How to handle exceptions globally?",
+                answer: """
+                **@ControllerAdvice + @ExceptionHandler:**
+                ```java
+                @ControllerAdvice
+                public class GlobalExceptionHandler {
+                    @ExceptionHandler(Exception.class)
+                    public ResponseEntity<String> handle(Exception e) {
+                        return new ResponseEntity<>(
+                            e.getMessage(),
+                            HttpStatus.INTERNAL_SERVER_ERROR
+                        );
+                    }
+                }
+                ```
+
+                **@RestControllerAdvice:**
+                - @ControllerAdvice + @ResponseBody
+                - Returns JSON directly
+                """,
+                tags: ["exception", "error handling"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "How to customize error responses?",
+                answer: """
+                **Custom Error Controller:**
+                ```java
+                @Controller
+                public class CustomErrorController implements ErrorController {
+                    @RequestMapping("/error")
+                    public String handleError() {
+                        return "error";
+                    }
+                }
+                ```
+
+                **Custom Error Pages:**
+                - Place in src/main/resources/templates/
+                - error.html (generic)
+                - 404.html, 500.html (specific)
+                """,
+                tags: ["error", "custom"]
+            ),
+            
+            // MARK: - JPA & Database
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring Data JPA?",
+                answer: """
+                Abstraction over JPA for data access.
+
+                **Repository Interface:**
+                ```java
+                public interface UserRepository 
+                    extends JpaRepository<User, Long> {
+                    List<User> findByName(String name);
+                }
+                ```
+
+                **Auto-generated queries:**
+                - findByEmail()
+                - findByAgeGreaterThan()
+                - findByNameContaining()
+
+                **Hierarchy:** Spring Data JPA → JPA → Hibernate
+                """,
+                tags: ["JPA", "data", "repository"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is @Entity annotation?",
+                answer: """
+                Marks class as JPA entity (database table).
+
+                ```java
+                @Entity
+                @Table(name = "users")
+                public class User {
+                    @Id
+                    @GeneratedValue(strategy = GenerationType.IDENTITY)
+                    private Long id;
+                    
+                    private String name;
+                    private String email;
+                }
+                ```
+
+                **Key Annotations:**
+                - @Id: Primary key
+                - @Table: Custom table name
+                - @Column: Custom column settings
+                """,
+                tags: ["entity", "JPA", "database"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Database initialization?",
+                answer: """
+                **Auto DDL:**
+                ```
+                spring.jpa.hibernate.ddl-auto=create-drop
+                ```
+                - create: Create on startup
+                - update: Update schema
+                - validate: Validate only
+                - none: Do nothing
+
+                **SQL Scripts:**
+                - schema.sql: DDL statements
+                - data.sql: DML statements
+                - Place in src/main/resources/
+                """,
+                tags: ["database", "initialization"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "How to configure Multiple DataSources?",
+                answer: """
+                **Primary DataSource:**
+                ```java
+                @Primary
+                @Bean("primaryDataSource")
+                @ConfigurationProperties("spring.datasource.primary")
+                public DataSource primaryDataSource() {
+                    return DataSourceBuilder.create().build();
+                }
+                ```
+
+                **Secondary DataSource:**
+                ```java
+                @Bean("secondaryDataSource")
+                @ConfigurationProperties("spring.datasource.secondary")
+                public DataSource secondaryDataSource() {
+                    return DataSourceBuilder.create().build();
+                }
+                ```
+                """,
+                tags: ["datasource", "multiple"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Pagination and Sorting?",
+                answer: """
+                **Using Pageable:**
+                ```java
+                Page<User> findByName(String name, Pageable pageable);
+
+                Pageable pageable = PageRequest.of(0, 10, Sort.by("name"));
+                Page<User> users = userRepository.findByName("John", pageable);
+                ```
+
+                **Returns:**
+                - Content (list of items)
+                - Total elements
+                - Total pages
+                - Page number
+                """,
+                tags: ["pagination", "sorting"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Embedded Database (H2)?",
+                answer: """
+                **Add Dependency:**
+                ```xml
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                </dependency>
+                ```
+
+                **Configuration:**
+                ```
+                spring.datasource.url=jdbc:h2:mem:testdb
+                spring.h2.console.enabled=true
+                ```
+
+                **Access console:** http://localhost:8080/h2-console
+                """,
+                tags: ["H2", "embedded", "database"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Database Migrations?",
+                answer: """
+                **Flyway:**
+                - SQL-based migrations
+                - V1__initial.sql, V2__add_column.sql
+                - Tracks in flyway_schema_history table
+
+                **Liquibase:**
+                - XML/YAML/JSON changelogs
+                - More control over refactorings
+
+                ```xml
+                <dependency>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-core</artifactId>
+                </dependency>
+                ```
+                """,
+                tags: ["flyway", "liquibase", "migration"]
+            ),
+            
+            // MARK: - Transactions
+            CSConcept(
+                category: .springBoot,
+                question: "What is @Transactional?",
+                answer: """
+                Manages database transactions declaratively.
+
+                **How it works:**
+                - Spring creates AOP proxy
+                - Proxy starts transaction
+                - Method executes
+                - Commit or rollback
+
+                **Propagation:**
+                - REQUIRED (default): Use or create
+                - REQUIRES_NEW: Always new
+                - NESTED: Savepoint
+
+                **Pitfall:** Self-invocation bypasses proxy!
+                """,
+                tags: ["transactional", "AOP"]
+            ),
+            
+            // MARK: - Profiles
+            CSConcept(
+                category: .springBoot,
+                question: "What are Spring Profiles?",
+                answer: """
+                Environment-specific configurations.
+
+                **Files:**
+                - application-dev.properties
+                - application-prod.properties
+
+                **Activate:**
+                ```
+                spring.profiles.active=dev
+                ```
+                Or: -Dspring.profiles.active=prod
+
+                **@Profile annotation:**
+                ```java
                 @Bean
                 @Profile("dev")
-                public DataSource devDataSource() { ... }
-
-                @Profile("!prod") - NOT production
-
-                Best Practices:
-                • Never put secrets in properties files
-                • Use environment variables for secrets
-                • Use Spring Cloud Config for central config
+                public DataSource devDataSource() { }
+                ```
                 """,
-                tags: ["profiles", "configuration", "environment"]
+                tags: ["profiles", "environment"]
+            ),
+            
+            // MARK: - Actuator
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring Boot Actuator?",
+                answer: """
+                Production-ready monitoring features.
+
+                **Endpoints:**
+                - /actuator/health: Health status
+                - /actuator/metrics: JVM, HTTP stats
+                - /actuator/info: Build info
+                - /actuator/env: Environment properties
+                - /actuator/loggers: Change log levels
+
+                **Add Dependency:**
+                spring-boot-starter-actuator
+                """,
+                tags: ["actuator", "monitoring"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Spring Security Basics",
+                question: "How to customize Actuator?",
                 answer: """
-                Core Concepts:
-                • Authentication: Who are you?
-                • Authorization: What can you do?
-                • Principal: Currently authenticated user
+                **Expose endpoints:**
+                ```
+                management.endpoints.web.exposure.include=health,info,metrics
+                ```
 
-                Filter Chain:
-                SecurityFilterChain intercepts all requests
-                1. UsernamePasswordAuthenticationFilter
-                2. BasicAuthenticationFilter
-                3. AuthorizationFilter
+                **Change base path:**
+                ```
+                management.endpoints.web.base-path=/manage
+                ```
 
-                Configuration:
+                **Custom health check:**
+                ```java
+                @Component
+                public class CustomHealth implements HealthIndicator {
+                    public Health health() {
+                        return Health.up().withDetail("key", "value").build();
+                    }
+                }
+                ```
+                """,
+                tags: ["actuator", "custom"]
+            ),
+            
+            // MARK: - Testing
+            CSConcept(
+                category: .springBoot,
+                question: "What is @SpringBootTest?",
+                answer: """
+                Loads full application context for integration testing.
+
+                ```java
+                @SpringBootTest
+                public class MyTests {
+                    @Autowired
+                    private UserService userService;
+                    
+                    @Test
+                    void contextLoads() {
+                        assertNotNull(userService);
+                    }
+                }
+                ```
+
+                **Includes:** JUnit 5, Mockito, AssertJ
+                """,
+                tags: ["testing", "integration"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is @DataJpaTest?",
+                answer: """
+                Tests JPA repositories in isolation.
+
+                ```java
+                @DataJpaTest
+                public class UserRepositoryTest {
+                    @Autowired
+                    private UserRepository userRepository;
+                    
+                    @Test
+                    void testFindByName() {
+                        User user = userRepository.findByName("John");
+                        assertNotNull(user);
+                    }
+                }
+                ```
+
+                **Uses:** In-memory database, rollback after each test
+                """,
+                tags: ["testing", "JPA"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Testing with MockMvc?",
+                answer: """
+                Test controllers without starting server.
+
+                ```java
+                @WebMvcTest(UserController.class)
+                public class UserControllerTest {
+                    @Autowired
+                    private MockMvc mockMvc;
+
+                    @Test
+                    public void testGetUser() throws Exception {
+                        mockMvc.perform(get("/user"))
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.name").value("John"));
+                    }
+                }
+                ```
+                """,
+                tags: ["testing", "MockMvc"]
+            ),
+            
+            // MARK: - Security
+            CSConcept(
+                category: .springBoot,
+                question: "Spring Security Basics?",
+                answer: """
+                **Core Concepts:**
+                - Authentication: Who are you?
+                - Authorization: What can you do?
+
+                **Configuration:**
+                ```java
                 @EnableWebSecurity
-                @Bean
-                SecurityFilterChain filterChain(HttpSecurity http) {
-                    return http
-                        .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/public/**").permitAll()
-                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                public class SecurityConfig {
+                    @Bean
+                    SecurityFilterChain filterChain(HttpSecurity http) {
+                        return http
+                            .authorizeRequests()
+                            .antMatchers("/public/**").permitAll()
                             .anyRequest().authenticated()
-                        )
-                        .formLogin(withDefaults())
-                        .build();
+                            .and()
+                            .formLogin()
+                            .build();
+                    }
                 }
-
-                JWT: Stateless authentication
+                ```
                 """,
-                tags: ["Security", "authentication", "authorization", "JWT"]
+                tags: ["security", "authentication"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "@Cacheable - Spring Caching",
+                question: "JWT Authentication?",
                 answer: """
-                Enable: @EnableCaching on config class
+                Stateless token-based authentication.
 
-                Annotations:
-                @Cacheable("users") - Cache result
-                @CachePut("users") - Update cache
-                @CacheEvict("users") - Remove from cache
-                @CacheEvict(allEntries=true) - Clear all
+                **Flow:**
+                1. User logs in with credentials
+                2. Server validates and returns JWT
+                3. Client stores JWT
+                4. Client sends JWT in Authorization header
+                5. Server validates JWT on each request
 
-                Example:
-                @Cacheable(value="users", key="#id")
-                public User findById(Long id) {
-                    return userRepository.findById(id);
-                }
-
-                Cache Providers:
-                • ConcurrentHashMap (default, in-memory)
-                • Redis (distributed)
-                • Ehcache (local, advanced)
-                • Caffeine (high performance)
-
-                Conditional:
-                @Cacheable(value="users", condition="#id > 10")
-                @Cacheable(value="users", unless="#result == null")
+                **Header format:**
+                Authorization: Bearer <token>
                 """,
-                tags: ["Cacheable", "caching", "Redis", "performance"]
+                tags: ["JWT", "authentication"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "@Async - Async Method Execution",
+                question: "How to enable CORS?",
                 answer: """
-                Enable: @EnableAsync on config class
+                **Global Configuration:**
+                ```java
+                @Configuration
+                public class WebConfig implements WebMvcConfigurer {
+                    @Override
+                    public void addCorsMappings(CorsRegistry registry) {
+                        registry.addMapping("/**")
+                            .allowedOrigins("http://example.com")
+                            .allowedMethods("GET", "POST", "PUT");
+                    }
+                }
+                ```
 
-                Usage:
+                **Per-controller:**
+                @CrossOrigin(origins = "http://example.com")
+                """,
+                tags: ["CORS", "security"]
+            ),
+            
+            // MARK: - Async & Scheduling
+            CSConcept(
+                category: .springBoot,
+                question: "What is @Async?",
+                answer: """
+                Execute methods asynchronously.
+
+                **Enable:** @EnableAsync
+
+                **Usage:**
+                ```java
                 @Async
-                public void sendEmail(String to) { ... }
+                public void sendEmail(String to) {
+                    // Runs in separate thread
+                }
 
                 @Async
                 public CompletableFuture<User> findUser(Long id) {
                     return CompletableFuture.completedFuture(user);
                 }
+                ```
 
-                Custom Executor:
-                @Bean("customExecutor")
-                public Executor taskExecutor() {
-                    ThreadPoolTaskExecutor e = new ThreadPoolTaskExecutor();
-                    e.setCorePoolSize(2);
-                    e.setMaxPoolSize(10);
-                    e.setQueueCapacity(500);
-                    return e;
+                **Pitfall:** Self-invocation bypasses proxy!
+                """,
+                tags: ["async", "threading"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is @Scheduled?",
+                answer: """
+                Schedule background tasks.
+
+                **Enable:** @EnableScheduling
+
+                **Fixed Rate (start to start):**
+                @Scheduled(fixedRate = 5000)
+
+                **Fixed Delay (end to start):**
+                @Scheduled(fixedDelay = 5000)
+
+                **Cron Expression:**
+                @Scheduled(cron = "0 0 8 * * MON-FRI")
+
+                **Cron:** second minute hour day month weekday
+                """,
+                tags: ["scheduled", "cron", "tasks"]
+            ),
+            
+            // MARK: - Caching
+            CSConcept(
+                category: .springBoot,
+                question: "How to implement Caching?",
+                answer: """
+                **Enable:** @EnableCaching
+
+                **Annotations:**
+                - @Cacheable("cache"): Cache result
+                - @CachePut("cache"): Update cache
+                - @CacheEvict("cache"): Remove from cache
+
+                ```java
+                @Cacheable(value="users", key="#id")
+                public User findById(Long id) {
+                    return userRepository.findById(id);
+                }
+                ```
+
+                **Providers:** Redis, Ehcache, Caffeine
+                """,
+                tags: ["caching", "performance"]
+            ),
+            
+            // MARK: - DevTools & Logging
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring Boot DevTools?",
+                answer: """
+                Developer productivity tools.
+
+                **Features:**
+                - Automatic restart on file changes
+                - LiveReload browser refresh
+                - Disabled caching
+                - Enhanced logging
+
+                **Add Dependency:**
+                spring-boot-devtools (scope: runtime)
+
+                **Note:** Don't use in production!
+                """,
+                tags: ["devtools", "development"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Logging Configuration?",
+                answer: """
+                **Default:** SLF4J + Logback
+
+                **Set Levels:**
+                ```
+                logging.level.root=INFO
+                logging.level.com.example=DEBUG
+                ```
+
+                **Log to file:**
+                ```
+                logging.file.name=app.log
+                ```
+
+                **Usage:**
+                ```java
+                private static final Logger log = 
+                    LoggerFactory.getLogger(MyClass.class);
+                log.info("Message");
+                ```
+                """,
+                tags: ["logging", "SLF4J"]
+            ),
+            
+            // MARK: - File Upload
+            CSConcept(
+                category: .springBoot,
+                question: "How to handle File Upload?",
+                answer: """
+                **Controller:**
+                ```java
+                @PostMapping("/upload")
+                public String upload(@RequestParam("file") MultipartFile file) {
+                    Path path = Paths.get("uploads/" + file.getOriginalFilename());
+                    Files.copy(file.getInputStream(), path);
+                    return "Uploaded: " + file.getOriginalFilename();
+                }
+                ```
+
+                **HTML form:**
+                enctype="multipart/form-data"
+
+                **Config:**
+                spring.servlet.multipart.max-file-size=10MB
+                """,
+                tags: ["file", "upload"]
+            ),
+            
+            // MARK: - Auto Configuration
+            CSConcept(
+                category: .springBoot,
+                question: "What is Auto-Configuration?",
+                answer: """
+                Spring Boot auto-configures beans based on classpath.
+
+                **How it works:**
+                - Reads META-INF/spring.factories
+                - Conditional annotations determine loading
+
+                **Disable specific:**
+                ```java
+                @SpringBootApplication(
+                    exclude = DataSourceAutoConfiguration.class
+                )
+                ```
+
+                **Conditional annotations:**
+                - @ConditionalOnClass
+                - @ConditionalOnMissingBean
+                - @ConditionalOnProperty
+                """,
+                tags: ["auto-configuration", "conditional"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "What is @ConditionalOnMissingBean?",
+                answer: """
+                Load bean only if NOT already defined.
+
+                ```java
+                @Bean
+                @ConditionalOnMissingBean
+                public DataSource dataSource() {
+                    return new HikariDataSource();
+                }
+                ```
+
+                **Use case:**
+                - Provide default implementation
+                - Allow user to override
+                - Auto-configuration classes
+                """,
+                tags: ["conditional", "bean"]
+            ),
+            
+            // MARK: - AOP
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring AOP?",
+                answer: """
+                Aspect-Oriented Programming for cross-cutting concerns.
+
+                **Concepts:**
+                - Aspect: Class with cross-cutting logic
+                - Advice: Action (before, after, around)
+                - Pointcut: Where to apply
+                - JoinPoint: Point in execution
+
+                **Advice Types:**
+                - @Before, @After
+                - @AfterReturning, @AfterThrowing
+                - @Around (most powerful)
+                """,
+                tags: ["AOP", "aspect"]
+            ),
+            
+            // MARK: - Microservices
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring Cloud?",
+                answer: """
+                Tools for building distributed systems.
+
+                **Components:**
+                - Spring Cloud Config: Externalized config
+                - Eureka: Service discovery
+                - Ribbon/LoadBalancer: Client-side load balancing
+                - Spring Cloud Gateway: API gateway
+                - Resilience4j: Circuit breaker
+
+                Spring Boot is foundation for Spring Cloud.
+                """,
+                tags: ["microservices", "Spring Cloud"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Circuit Breaker Pattern?",
+                answer: """
+                Prevent cascading failures in microservices.
+
+                **Using Resilience4j:**
+                ```java
+                @CircuitBreaker(name = "userService", fallbackMethod = "fallback")
+                public User getUser(Long id) {
+                    return restTemplate.getForObject(url, User.class);
                 }
 
-                @Async("customExecutor")
-                public void process() { ... }
+                public User fallback(Long id, Throwable t) {
+                    return new User("Default");
+                }
+                ```
 
-                Pitfall: Calling @Async from same class bypasses proxy!
+                **States:** Closed → Open → Half-Open
                 """,
-                tags: ["Async", "threading", "executor", "performance"]
+                tags: ["circuit breaker", "resilience"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "@Scheduled - Task Scheduling",
+                question: "Distributed Tracing?",
                 answer: """
-                Enable: @EnableScheduling
+                Track requests across microservices.
 
-                Fixed Rate (start to start):
-                @Scheduled(fixedRate = 5000)
-                public void runEvery5Seconds() { ... }
+                **Spring Cloud Sleuth:**
+                - Adds trace/span IDs to logs
+                - Auto-propagates through HTTP headers
 
-                Fixed Delay (end to start):
-                @Scheduled(fixedDelay = 5000)
-                public void run5SecondsAfterLast() { ... }
+                **Configuration:**
+                ```
+                spring.zipkin.base-url=http://localhost:9411
+                spring.sleuth.sampler.probability=1.0
+                ```
 
-                Cron Expression:
-                @Scheduled(cron = "0 0 8 * * MON-FRI")
-                public void runAt8amWeekdays() { ... }
-
-                Cron format: second minute hour day month weekday
-                • 0 0 * * * * = every hour
-                • 0 0 8 * * * = 8am daily
-                • 0 0 0 * * SUN = midnight Sunday
-
-                Initial Delay:
-                @Scheduled(fixedRate=5000, initialDelay=10000)
+                **Visualization:** Zipkin, Jaeger
                 """,
-                tags: ["Scheduled", "cron", "tasks", "timer"]
+                tags: ["tracing", "Sleuth"]
+            ),
+            
+            // MARK: - API Documentation
+            CSConcept(
+                category: .springBoot,
+                question: "Swagger/OpenAPI Documentation?",
+                answer: """
+                API documentation and testing.
+
+                **Add Dependency:**
+                springdoc-openapi-ui
+
+                **Access:** /swagger-ui.html
+
+                **Annotate:**
+                ```java
+                @Operation(summary = "Get all users")
+                @GetMapping("/users")
+                public List<User> getUsers() { }
+                ```
+                """,
+                tags: ["Swagger", "OpenAPI"]
+            ),
+            
+            // MARK: - REST Client
+            CSConcept(
+                category: .springBoot,
+                question: "RestTemplate vs WebClient?",
+                answer: """
+                **RestTemplate:**
+                - Synchronous, blocking
+                - Simple API
+                - Deprecated
+
+                **WebClient:**
+                - Asynchronous, non-blocking
+                - Reactive programming
+                - Modern approach
+
+                ```java
+                WebClient client = WebClient.create();
+                Mono<User> user = client.get()
+                    .uri("/users/1")
+                    .retrieve()
+                    .bodyToMono(User.class);
+                ```
+                """,
+                tags: ["RestTemplate", "WebClient"]
             ),
             CSConcept(
                 category: .springBoot,
-                question: "Spring AOP Concepts",
+                question: "What is @FeignClient?",
                 answer: """
-                Aspect: Class containing cross-cutting concerns
-                Advice: Action taken (before, after, around)
-                Pointcut: WHERE to apply (expression)
-                JoinPoint: Point in execution (method call)
+                Declarative REST client.
 
-                Advice Types:
-                @Before - Before method
-                @After - After method (always)
-                @AfterReturning - After successful return
-                @AfterThrowing - After exception
-                @Around - Wraps method (most powerful)
+                ```java
+                @FeignClient(name = "user-service")
+                public interface UserClient {
+                    @GetMapping("/users/{id}")
+                    User getUser(@PathVariable Long id);
+                }
+                ```
 
-                Example:
-                @Aspect
+                **Benefits:**
+                - No boilerplate code
+                - Integrates with Eureka
+                - Built-in load balancing
+                """,
+                tags: ["Feign", "REST client"]
+            ),
+            
+            // MARK: - Command Line
+            CSConcept(
+                category: .springBoot,
+                question: "CommandLineRunner vs ApplicationRunner?",
+                answer: """
+                Execute code after application starts.
+
+                **CommandLineRunner:**
+                ```java
                 @Component
-                public class LoggingAspect {
-                    @Around("execution(* com.example.service.*.*(..))")
-                    public Object logTime(ProceedingJoinPoint pjp) throws Throwable {
-                        long start = System.currentTimeMillis();
-                        Object result = pjp.proceed();
-                        log.info("Time: {}ms", System.currentTimeMillis() - start);
-                        return result;
+                public class MyRunner implements CommandLineRunner {
+                    public void run(String... args) {
+                        System.out.println("Args: " + Arrays.toString(args));
                     }
                 }
+                ```
+
+                **ApplicationRunner:**
+                - Access to ApplicationArguments
+                - More detailed argument parsing
                 """,
-                tags: ["AOP", "Aspect", "proxy", "cross-cutting"]
+                tags: ["CommandLineRunner", "startup"]
+            ),
+            
+            // MARK: - Deployment
+            CSConcept(
+                category: .springBoot,
+                question: "Running Spring Boot App?",
+                answer: """
+                **Methods:**
+                1. java -jar myapp.jar
+                2. mvn spring-boot:run
+                3. gradle bootRun
+                4. IDE main() method
+
+                **Embedded Servers:**
+                - Tomcat (default)
+                - Jetty
+                - Undertow
+
+                **Change server:**
+                Exclude spring-boot-starter-tomcat
+                Add spring-boot-starter-jetty
+                """,
+                tags: ["deployment", "running"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Docker Deployment?",
+                answer: """
+                **Dockerfile:**
+                ```dockerfile
+                FROM openjdk:17-jre
+                COPY target/app.jar /app.jar
+                ENTRYPOINT ["java", "-jar", "/app.jar"]
+                ```
+
+                **Build & Run:**
+                ```
+                docker build -t myapp .
+                docker run -p 8080:8080 myapp
+                ```
+
+                **Challenges:**
+                - Environment variables
+                - Health checks
+                - Secrets management
+                """,
+                tags: ["Docker", "containers"]
+            ),
+            CSConcept(
+                category: .springBoot,
+                question: "Kubernetes Integration?",
+                answer: """
+                **Spring Cloud Kubernetes:**
+                - ConfigMaps as properties
+                - Service discovery
+                - Load balancing
+
+                **Health Probes:**
+                ```yaml
+                livenessProbe:
+                  httpGet:
+                    path: /actuator/health/liveness
+                readinessProbe:
+                  httpGet:
+                    path: /actuator/health/readiness
+                ```
+                """,
+                tags: ["Kubernetes", "cloud"]
+            ),
+            
+            // MARK: - Performance
+            CSConcept(
+                category: .springBoot,
+                question: "Performance Optimization?",
+                answer: """
+                **Strategies:**
+                1. **Caching:** @Cacheable, Redis
+                2. **Connection Pool:** HikariCP (default)
+                3. **Lazy Init:** spring.main.lazy-initialization=true
+                4. **Async:** @Async for non-blocking
+                5. **Pagination:** Limit data fetched
+                6. **Indexes:** Database query optimization
+
+                **Monitoring:**
+                - Actuator metrics
+                - Micrometer + Prometheus
+                """,
+                tags: ["performance", "optimization"]
+            ),
+            
+            // MARK: - Reactive
+            CSConcept(
+                category: .springBoot,
+                question: "What is Spring WebFlux?",
+                answer: """
+                Reactive, non-blocking web framework.
+
+                **Core Types:**
+                - Mono<T>: 0 or 1 element
+                - Flux<T>: 0 to N elements
+
+                ```java
+                @GetMapping("/users")
+                public Flux<User> getUsers() {
+                    return userRepository.findAll();
+                }
+                ```
+
+                **Benefits:**
+                - High concurrency
+                - Backpressure support
+                - Better resource utilization
+                """,
+                tags: ["WebFlux", "reactive"]
             )
         ]
     }
